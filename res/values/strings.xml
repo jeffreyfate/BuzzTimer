@@ -3,5 +3,7 @@
 
     <string name="app_name">Buzz Timer</string>
     <string name="menu_settings">Settings</string>
+    
+    <string name="loop_key">loop</string>
 
 </resources>

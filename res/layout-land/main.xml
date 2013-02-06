@@ -1,0 +1,93 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ActivityMain"
+    android:background="@android:color/black"
+    android:gravity="center" >
+    <LinearLayout
+        android:id="@+id/TimeLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:weightSum="2"
+        android:gravity="center" >
+        <RelativeLayout
+            android:id="@+id/Minute"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_weight="0.53"
+            android:gravity="right|center_vertical" >
+            <net.simonvt.widget.NumberPicker
+                android:id="@+id/MinutePicker"
+                android:layout_width="match_parent"
+                android:layout_height="200dip"
+                android:layout_centerInParent="true"
+                android:visibility="invisible" />
+            <TextView
+	            android:id="@+id/MinuteText"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+	            android:textSize="160sp"
+	            android:gravity="right|center_vertical" />
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/ColonText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.93"
+            android:textSize="160sp"
+            android:layout_gravity="center"
+            android:paddingBottom="12dip"
+            android:text=":" />
+        <RelativeLayout
+            android:id="@+id/Second"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_weight="0.54"
+            android:gravity="left|center_vertical" >
+            <net.simonvt.widget.NumberPicker
+                android:id="@+id/SecondPicker"
+                android:layout_width="match_parent"
+                android:layout_height="200dip"
+                android:layout_centerInParent="true"
+                android:visibility="invisible" />
+            <TextView
+	            android:id="@+id/SecondText"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+	            android:textSize="160sp"
+	            android:gravity="left|center_vertical" />
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/OptionsLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/TimeLayout"
+        android:gravity="center"
+        android:weightSum="1"
+        android:orientation="horizontal" >
+	    <CheckBox
+	        android:id="@+id/LoopCheck"
+	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent"
+	        android:checked="true"
+	        android:text="Repeat"
+	        android:padding="10dip"
+	        android:layout_weight="0.5"
+	        android:gravity="center" />
+	    <Button
+            android:id="@+id/DoneButton"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="DONE"
+            android:padding="10dip"
+            android:layout_weight="0.5" />
+    </LinearLayout>
+</RelativeLayout>

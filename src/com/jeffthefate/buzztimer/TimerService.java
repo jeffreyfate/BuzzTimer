@@ -2,8 +2,6 @@ package com.jeffthefate.buzztimer;
 
 import java.util.ArrayList;
 
-import com.jeffthefate.buzztimer.FragmentTimePickerDialog.TimeSetListener;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +23,7 @@ import android.util.Log;
 public class TimerService extends Service {
     
     private long mSecs = 60000;
+    private boolean loop = true;
     private Timer timer;
     
     private ArrayList<Messenger> clients;
@@ -33,17 +32,18 @@ public class TimerService extends Service {
     public void onCreate() {
         super.onCreate();
         clients = new ArrayList<Messenger>();
+        Log.i("BuzzTimer", "onCreate");
     }
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        if (intent != null) {
-            if (intent.hasExtra("millis")) {
-                mSecs = intent.getLongExtra("millis", 0);
-            }
-        }
-        timer = new Timer(mSecs, 500);
+        Log.i("BuzzTimer", "onStart");
+        mSecs = ApplicationEx.dbHelper.getTime();
+        Log.i("BuzzTimer", "onStartCommand setting mSecs to " + mSecs);
+        if (timer != null)
+            timer.cancel();
+        timer = new Timer(mSecs, 500, loop);
         return Service.START_STICKY_COMPATIBILITY;
     }
     
@@ -60,10 +60,13 @@ public class TimerService extends Service {
     }
     
     public void startTimer() {
-        if (timer != null)
+        if (timer != null) {
+            if (timer != null)
+                timer.cancel();
             timer.start();
+        }
         else {
-            timer = new Timer(mSecs, 500);
+            timer = new Timer(mSecs, 500, loop);
             timer.start();
         }
     }
@@ -84,6 +87,9 @@ public class TimerService extends Service {
         int second = (int)((mSecs%60000)/1000);
         mMessage.arg1 = minute;
         mMessage.arg2 = second;
+        Log.e("BuzzTimer", "what: " + mMessage.what);
+        Log.e("BuzzTimer", "arg1: " + mMessage.arg1);
+        Log.e("BuzzTimer", "arg2: " + mMessage.arg2);
         try {
             messenger.send(mMessage);
         } catch (RemoteException e) {
@@ -97,17 +103,23 @@ public class TimerService extends Service {
     }
     
     private class Timer extends CountDownTimer {
-        public Timer(long millisInFuture, long countDownInterval) {
+        private boolean loop = false;
+        
+        public Timer(long millisInFuture, long countDownInterval,
+                boolean loop) {
             super(millisInFuture, countDownInterval);
+            this.loop = loop;
+            ApplicationEx.dbHelper.setTime(millisInFuture);
             int minute = (int)((millisInFuture-(millisInFuture%60000))/60000);
             int second = (int)((millisInFuture%60000)/1000);
-            Log.d("BuzzTimer", "minute: " + minute);
-            Log.d("BuzzTimer", "second: " + second);
             for (Messenger client : clients) {
                 Message mMessage = Message.obtain(null, 
                         ActivityMain.TIMER_SET);
                 mMessage.arg1 = minute;
                 mMessage.arg2 = second;
+                Log.d("BuzzTimer", "what: " + mMessage.what);
+                Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
+                Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
                 try {
                     client.send(mMessage);
                 } catch (RemoteException e) {
@@ -119,15 +131,18 @@ public class TimerService extends Service {
 
         @Override
         public void onTick(long millisUntilFinished) {
-            int minute = (int)((millisUntilFinished-(millisUntilFinished%60000))/60000);
-            int second = (int)((millisUntilFinished%60000)/1000);
-            Log.i("BuzzTimer", "minute: " + minute);
-            Log.i("BuzzTimer", "second: " + second);
+            mSecs = millisUntilFinished;
+            ApplicationEx.dbHelper.setTime(mSecs);
+            int minute = (int)((mSecs-(mSecs%60000))/60000);
+            int second = (int)((mSecs%60000)/1000);
             for (Messenger client : clients) {
                 Message mMessage = Message.obtain(null, 
                         ActivityMain.TIMER_TICK);
                 mMessage.arg1 = minute;
                 mMessage.arg2 = second;
+                Log.d("BuzzTimer", "what: " + mMessage.what);
+                Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
+                Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
                 try {
                     client.send(mMessage);
                 } catch (RemoteException e) {
@@ -141,20 +156,26 @@ public class TimerService extends Service {
         public void onFinish() {
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             v.vibrate(2000);
-            timer.start();
+            if (loop)
+                timer.start();
         }
     }
 
-    public void setTime(int minute, int second) {
+    public void setTime(int minute, int second, boolean loop) {
+        this.loop = loop;
         mSecs = minute*60000 + second*1000;
+        Log.i("BuzzTimer", "setTime setting mSecs to " + mSecs);
         if (timer != null)
             timer.cancel();
-        timer = new Timer(mSecs, 500);
+        timer = new Timer(mSecs, 500, loop);
         for (Messenger client : clients) {
             Message mMessage = Message.obtain(null, 
                     ActivityMain.TIMER_SET);
             mMessage.arg1 = minute;
             mMessage.arg2 = second;
+            Log.d("BuzzTimer", "what: " + mMessage.what);
+            Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
+            Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
             try {
                 client.send(mMessage);
             } catch (RemoteException e) {
@@ -165,4 +186,3 @@ public class TimerService extends Service {
     }
 
 }
-
