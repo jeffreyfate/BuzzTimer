@@ -10,13 +10,11 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_centerInParent="true"
-        android:weightSum="2"
         android:gravity="center" >
         <RelativeLayout
             android:id="@+id/Minute"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_weight="0.53"
+            android:layout_width="280dip"
             android:gravity="right|center_vertical" >
             <net.simonvt.widget.NumberPicker
                 android:id="@+id/MinutePicker"
@@ -35,9 +33,8 @@
         </RelativeLayout>
         <TextView
             android:id="@+id/ColonText"
-            android:layout_width="match_parent"
+            android:layout_width="28dip"
             android:layout_height="wrap_content"
-            android:layout_weight="0.93"
             android:textSize="160sp"
             android:layout_gravity="center"
             android:paddingBottom="12dip"
@@ -45,8 +42,7 @@
         <RelativeLayout
             android:id="@+id/Second"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_weight="0.54"
+            android:layout_width="200dip"
             android:gravity="left|center_vertical" >
             <net.simonvt.widget.NumberPicker
                 android:id="@+id/SecondPicker"
@@ -63,6 +59,14 @@
 	            android:textSize="160sp"
 	            android:gravity="left|center_vertical" />
         </RelativeLayout>
+        <TextView
+            android:id="@+id/MillisecondText"
+            android:layout_width="72dip"
+            android:layout_height="match_parent"
+            android:textSize="84sp"
+            android:layout_gravity="center"
+            android:paddingTop="16dip"
+            android:gravity="left|top" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/OptionsLayout"

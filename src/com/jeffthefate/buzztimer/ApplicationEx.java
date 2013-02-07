@@ -17,6 +17,7 @@ public class ApplicationEx extends Application {
     private static Context app;
     public static DatabaseHelper dbHelper;
     private static boolean mIsActive = false;
+    private static int mSecs = 60000;
     
     @Override
     public void onCreate() {
@@ -67,6 +68,14 @@ public class ApplicationEx extends Application {
     
     public static void setInactive() {
         mIsActive = false;
+    }
+    
+    public static int getMsecs() {
+        return mSecs;
+    }
+    
+    public static void setMsecs(int milliSecs) {
+        mSecs = milliSecs;
     }
     
 }

@@ -9,15 +9,13 @@
         android:id="@+id/TimeLayout"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_margin="12dip"
+        android:layout_margin="8dip"
         android:layout_centerInParent="true"
-        android:weightSum="2"
         android:gravity="center" >
         <RelativeLayout
             android:id="@+id/Minute"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_weight="0.53"
+            android:layout_width="160dip"
             android:gravity="right|center_vertical" >
             <net.simonvt.widget.NumberPicker
                 android:id="@+id/MinutePicker"
@@ -36,9 +34,8 @@
         </RelativeLayout>
         <TextView
             android:id="@+id/ColonText"
-            android:layout_width="match_parent"
+            android:layout_width="20dip"
             android:layout_height="wrap_content"
-            android:layout_weight="0.93"
             android:textSize="84sp"
             android:layout_gravity="center"
             android:paddingBottom="12dip"
@@ -46,8 +43,7 @@
         <RelativeLayout
             android:id="@+id/Second"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_weight="0.54"
+            android:layout_width="120dip"
             android:gravity="left|center_vertical" >
             <net.simonvt.widget.NumberPicker
                 android:id="@+id/SecondPicker"
@@ -64,6 +60,14 @@
                 android:gravity="left|center_vertical"
                 android:textSize="84sp" />
         </RelativeLayout>
+        <TextView
+            android:id="@+id/MillisecondText"
+            android:layout_width="40dip"
+            android:layout_height="match_parent"
+            android:textSize="48sp"
+            android:layout_gravity="center"
+            android:paddingTop="72dip"
+            android:gravity="left|top" />
     </LinearLayout>
     <Button
         android:id="@+id/DoneButton"

@@ -22,34 +22,33 @@ import android.util.Log;
  */
 public class TimerService extends Service {
     
-    private long mSecs = 60000;
     private boolean loop = true;
+    private boolean isRunning = false;
     private Timer timer;
     
-    private ArrayList<Messenger> clients;
+    public interface UiCallback {
+        public void updateTime(int mSecs);
+    }
+    
+    private UiCallback uiCallback;
     
     @Override
     public void onCreate() {
         super.onCreate();
-        clients = new ArrayList<Messenger>();
-        Log.i("BuzzTimer", "onCreate");
     }
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i("BuzzTimer", "onStart");
-        mSecs = ApplicationEx.dbHelper.getTime();
-        Log.i("BuzzTimer", "onStartCommand setting mSecs to " + mSecs);
+        ApplicationEx.setMsecs(ApplicationEx.dbHelper.getTime());
         if (timer != null)
             timer.cancel();
-        timer = new Timer(mSecs, 500, loop);
+        timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
         return Service.START_STICKY_COMPATIBILITY;
     }
     
     @Override
     public void onDestroy() {
-        Log.i("BuzzTimer", "onDestroy");
         stopForeground(true);
         super.onDestroy();
     }
@@ -59,16 +58,27 @@ public class TimerService extends Service {
         return mBinder;
     }
     
+    public void setUiCallback(UiCallback uiCallback) {
+        this.uiCallback = uiCallback;
+    }
+    
     public void startTimer() {
+        Log.i(Constants.LOG_TAG, "TimerService mSecs: " + ApplicationEx.getMsecs());
+        isRunning = true;
         if (timer != null) {
-            if (timer != null)
-                timer.cancel();
+            timer.cancel();
             timer.start();
         }
         else {
-            timer = new Timer(mSecs, 500, loop);
+            timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
             timer.start();
         }
+    }
+    
+    public void stopTimer() {
+        if (timer != null)
+            timer.cancel();
+        isRunning = false;
     }
     
     private final IBinder mBinder = new TimerBinder();
@@ -79,27 +89,13 @@ public class TimerService extends Service {
         }
     }
     
-    public void addClient(Messenger messenger) {
-        clients.add(messenger);
-        Message mMessage = Message.obtain(null, 
-                ActivityMain.TIMER_SET);
-        int minute = (int)((mSecs-(mSecs%60000))/60000);
-        int second = (int)((mSecs%60000)/1000);
-        mMessage.arg1 = minute;
-        mMessage.arg2 = second;
-        Log.e("BuzzTimer", "what: " + mMessage.what);
-        Log.e("BuzzTimer", "arg1: " + mMessage.arg1);
-        Log.e("BuzzTimer", "arg2: " + mMessage.arg2);
-        try {
-            messenger.send(mMessage);
-        } catch (RemoteException e) {
-            Log.e("BuzzTimer", "Can't connect to " +
-                    "ActivityMain", e);
-        }
-    }
-    
-    public void removeClient(Messenger messenger) {
-        clients.remove(messenger);
+    public void setTime(int minute, int second, boolean loop) {
+        this.loop = loop;
+        ApplicationEx.setMsecs(minute*60000 + second*1000);
+        ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
+        if (timer != null)
+            timer.cancel();
+        timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
     }
     
     private class Timer extends CountDownTimer {
@@ -110,78 +106,27 @@ public class TimerService extends Service {
             super(millisInFuture, countDownInterval);
             this.loop = loop;
             ApplicationEx.dbHelper.setTime(millisInFuture);
-            int minute = (int)((millisInFuture-(millisInFuture%60000))/60000);
-            int second = (int)((millisInFuture%60000)/1000);
-            for (Messenger client : clients) {
-                Message mMessage = Message.obtain(null, 
-                        ActivityMain.TIMER_SET);
-                mMessage.arg1 = minute;
-                mMessage.arg2 = second;
-                Log.d("BuzzTimer", "what: " + mMessage.what);
-                Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
-                Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
-                try {
-                    client.send(mMessage);
-                } catch (RemoteException e) {
-                    Log.e("BuzzTimer", "Can't connect to " +
-                            "ActivityMain", e);
-                }
-            }
+            if (uiCallback != null)
+                uiCallback.updateTime((int)millisInFuture);
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
-            mSecs = millisUntilFinished;
-            ApplicationEx.dbHelper.setTime(mSecs);
-            int minute = (int)((mSecs-(mSecs%60000))/60000);
-            int second = (int)((mSecs%60000)/1000);
-            for (Messenger client : clients) {
-                Message mMessage = Message.obtain(null, 
-                        ActivityMain.TIMER_TICK);
-                mMessage.arg1 = minute;
-                mMessage.arg2 = second;
-                Log.d("BuzzTimer", "what: " + mMessage.what);
-                Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
-                Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
-                try {
-                    client.send(mMessage);
-                } catch (RemoteException e) {
-                    Log.e("BuzzTimer", "Can't connect to " +
-                            "ActivityMain", e);
-                }
-            }
+            ApplicationEx.dbHelper.setTime(millisUntilFinished);
+            if (uiCallback != null)
+                uiCallback.updateTime((int)millisUntilFinished);
         }
         
         @Override
         public void onFinish() {
-            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
+            if (uiCallback != null)
+                uiCallback.updateTime((int)ApplicationEx.getMsecs());
+            Vibrator v = (Vibrator) ApplicationEx.getApp().getSystemService(
+                    Context.VIBRATOR_SERVICE);
             v.vibrate(2000);
             if (loop)
-                timer.start();
-        }
-    }
-
-    public void setTime(int minute, int second, boolean loop) {
-        this.loop = loop;
-        mSecs = minute*60000 + second*1000;
-        Log.i("BuzzTimer", "setTime setting mSecs to " + mSecs);
-        if (timer != null)
-            timer.cancel();
-        timer = new Timer(mSecs, 500, loop);
-        for (Messenger client : clients) {
-            Message mMessage = Message.obtain(null, 
-                    ActivityMain.TIMER_SET);
-            mMessage.arg1 = minute;
-            mMessage.arg2 = second;
-            Log.d("BuzzTimer", "what: " + mMessage.what);
-            Log.d("BuzzTimer", "arg1: " + mMessage.arg1);
-            Log.d("BuzzTimer", "arg2: " + mMessage.arg2);
-            try {
-                client.send(mMessage);
-            } catch (RemoteException e) {
-                Log.e("BuzzTimer", "Can't connect to " +
-                        "ActivityMain", e);
-            }
+                this.start();
         }
     }
 

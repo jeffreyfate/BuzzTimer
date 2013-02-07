@@ -7,10 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -25,15 +22,18 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jeffthefate.buzztimer.TimerService.TimerBinder;
+import com.jeffthefate.buzztimer.TimerService.UiCallback;
 
-public class ActivityMain extends FragmentActivity {
+public class ActivityMain extends FragmentActivity implements UiCallback {
     
     private FragmentManager fMan;
     private static TextView minText;
     private NumberPicker minPicker;
     private static TextView secText;
+    private static TextView msecText;
     private NumberPicker secPicker;
     private LinearLayout timeLayout;
     
@@ -43,12 +43,15 @@ public class ActivityMain extends FragmentActivity {
     private SharedPreferences sharedPrefs;
     
     private boolean bound;
+    private boolean loop;
     
     private int newMin = 1;
     private int newSec = 0;
     
     public static final int TIMER_SET = 0;
     public static final int TIMER_TICK = 1;
+    
+    private UiCallback uiCallback = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class ActivityMain extends FragmentActivity {
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
         minPicker.setMaxValue(120);
         minPicker.setMinValue(0);
+        minPicker.setValue(1);
         minPicker.setOnValueChangedListener(new OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal,
@@ -70,6 +74,7 @@ public class ActivityMain extends FragmentActivity {
         secPicker = (NumberPicker) findViewById(R.id.SecondPicker);
         secPicker.setMaxValue(59);
         secPicker.setMinValue(0);
+        secPicker.setValue(0);
         secPicker.setOnValueChangedListener(new OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal,
@@ -77,12 +82,20 @@ public class ActivityMain extends FragmentActivity {
                 newSec = newVal;
             }
         });
+        msecText = (TextView) findViewById(R.id.MillisecondText);
         timeLayout = (LinearLayout) findViewById(R.id.TimeLayout);
         timeLayout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mService != null)
-                    mService.startTimer();
+                Log.i(Constants.LOG_TAG, "ActivityMain mSecs: " + ApplicationEx.getMsecs());
+                if (ApplicationEx.getMsecs() < 5000)
+                    Toast.makeText(ApplicationEx.getApp(),
+                            "Must be at least 5 seconds",
+                            Toast.LENGTH_LONG).show();
+                else {
+                    if (mService != null)
+                        mService.startTimer();
+                }
             }
         });
         timeLayout.setOnLongClickListener(new OnLongClickListener() {
@@ -96,18 +109,26 @@ public class ActivityMain extends FragmentActivity {
                     doneButton.setVisibility(View.VISIBLE);
                     minText.setVisibility(View.INVISIBLE);
                     secText.setVisibility(View.INVISIBLE);
+                    msecText.setVisibility(View.INVISIBLE);
+                    newMin = minPicker.getValue();
+                    newSec = secPicker.getValue();
                 }
                 else {
-                    mService.setTime(newMin, newSec, loopCheck.isChecked());
-                    minText.setVisibility(View.VISIBLE);
-                    secText.setVisibility(View.VISIBLE);
-                    minPicker.setVisibility(View.INVISIBLE);
-                    secPicker.setVisibility(View.INVISIBLE);
-                    loopCheck.setVisibility(View.INVISIBLE);
-                    doneButton.setVisibility(View.INVISIBLE);
+                    if (newMin < 1 && newSec < 5)
+                        Toast.makeText(ApplicationEx.getApp(),
+                                "Must be at least 5 seconds",
+                                Toast.LENGTH_LONG).show();
+                    else {
+                        mService.setTime(newMin, newSec, loopCheck.isChecked());
+                        minText.setVisibility(View.VISIBLE);
+                        secText.setVisibility(View.VISIBLE);
+                        msecText.setVisibility(View.VISIBLE);
+                        minPicker.setVisibility(View.INVISIBLE);
+                        secPicker.setVisibility(View.INVISIBLE);
+                        loopCheck.setVisibility(View.INVISIBLE);
+                        doneButton.setVisibility(View.INVISIBLE);
+                    }
                 }
-                //DialogFragment dialogFragment = new FragmentTimePickerDialog();
-                //dialogFragment.show(fMan, "fTimePicker");
                 return true;
             }
         });
@@ -126,19 +147,29 @@ public class ActivityMain extends FragmentActivity {
         doneButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                mService.setTime(newMin, newSec, loopCheck.isChecked());
-                minText.setVisibility(View.VISIBLE);
-                secText.setVisibility(View.VISIBLE);
-                minPicker.setVisibility(View.INVISIBLE);
-                secPicker.setVisibility(View.INVISIBLE);
-                loopCheck.setVisibility(View.INVISIBLE);
-                doneButton.setVisibility(View.INVISIBLE);
+                if (newMin < 1 && newSec < 5)
+                    Toast.makeText(ApplicationEx.getApp(),
+                            "Must be at least 5 seconds",
+                            Toast.LENGTH_LONG).show();
+                else {
+                    mService.setTime(newMin, newSec, loopCheck.isChecked());
+                    minText.setVisibility(View.VISIBLE);
+                    secText.setVisibility(View.VISIBLE);
+                    msecText.setVisibility(View.VISIBLE);
+                    minPicker.setVisibility(View.INVISIBLE);
+                    secPicker.setVisibility(View.INVISIBLE);
+                    loopCheck.setVisibility(View.INVISIBLE);
+                    doneButton.setVisibility(View.INVISIBLE);
+                }
             }
         });
         if (savedInstanceState != null) {
             minText.setText(savedInstanceState.getString("minText"));
             secText.setText(savedInstanceState.getString("secText"));
+            msecText.setText(savedInstanceState.getString("msecText"));
         }
+        else
+            updateTime(ApplicationEx.getMsecs());
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(
                 ApplicationEx.getApp());
     }
@@ -147,6 +178,7 @@ public class ActivityMain extends FragmentActivity {
     public void onSaveInstanceState(Bundle outState) {
         outState.putString("minText", minText.getText().toString());
         outState.putString("secText", secText.getText().toString());
+        outState.putString("msecText", msecText.getText().toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -159,6 +191,7 @@ public class ActivityMain extends FragmentActivity {
     @Override
     public void onResume() {
         super.onResume();
+        loop = sharedPrefs.getBoolean(getString(R.string.loop_key), true);
         if (mService == null) {
             Intent timerIntent = new Intent(getApplicationContext(),
                     TimerService.class);
@@ -166,13 +199,11 @@ public class ActivityMain extends FragmentActivity {
         }
         bindService(new Intent(getApplicationContext(), TimerService.class),
                 mConnection, 0);
-        
     }
     
     @Override
     public void onPause() {
         if (bound) {
-            mService.removeClient(mMessenger);
             unbindService(mConnection);
             bound = false;
         }
@@ -181,38 +212,12 @@ public class ActivityMain extends FragmentActivity {
     
     private static TimerService mService;
     
-    private static class TimerHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.i("BuzzTimer", "what: " + msg.what);
-            Log.i("BuzzTimer", "arg1: " + msg.arg1);
-            Log.i("BuzzTimer", "arg2: " + msg.arg2);
-            int minute = msg.arg1;
-            int second = msg.arg2;
-            switch(msg.what) {
-            case TIMER_SET:
-                minText.setText(minute < 10 ? "0" + Integer.toString(minute) : Integer.toString(minute));
-                secText.setText(second < 10 ? "0" + Integer.toString(second) : Integer.toString(second));
-                break;
-            case TIMER_TICK:
-                minText.setText(minute < 10 ? "0" + Integer.toString(minute) : Integer.toString(minute));
-                secText.setText(second < 10 ? "0" + Integer.toString(second) : Integer.toString(second));
-                break;
-            default:
-                super.handleMessage(msg);
-                break;
-            }
-        }
-    }
-    
-    final Messenger mMessenger = new Messenger(new TimerHandler());
-    
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             TimerBinder binder = (TimerBinder) service;
             mService = binder.getService();
-            mService.addClient(mMessenger);
+            mService.setUiCallback(uiCallback);
             bound = true;
         }
         @Override
@@ -220,5 +225,22 @@ public class ActivityMain extends FragmentActivity {
             bound = false;
         }
     };
+    
+    @Override
+    public void updateTime(int mSecs) {
+        int mins = (int)((mSecs-(mSecs%60000))/60000);
+        int secs = (int)((mSecs%60000)/1000);
+        int millis = (int)((mSecs%1000)/100);
+        if (mins < 100) {
+            if (mins < 10)
+                minText.setText("00" + mins);
+            else
+                minText.setText("0" + mins);
+        }
+        else
+            minText.setText(Integer.toString(mins));
+        secText.setText(secs < 10 ? "0" + secs : Integer.toString(secs));
+        msecText.setText(Integer.toString(millis));
+    }
 
 }

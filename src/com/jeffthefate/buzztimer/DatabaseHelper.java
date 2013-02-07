@@ -150,12 +150,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             insertRecord(cv, TIMER_TABLE, COL_MSEC);
     }
     
-    public long getTime() {
+    public int getTime() {
         Cursor cur = db.query(TIMER_TABLE, new String[] {COL_MSEC}, null, null,
                 null, null, null);
-        long time = 0;
+        int time = 0;
         if (cur.moveToFirst()) {
-            time = cur.getLong(cur.getColumnIndex(COL_MSEC));
+            time = cur.getInt(cur.getColumnIndex(COL_MSEC));
         }
         cur.close();
         return time;
