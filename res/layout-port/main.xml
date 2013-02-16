@@ -1,73 +1,69 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/TimeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ActivityMain"
-    android:background="@android:color/black"
-    android:gravity="center" >
+    tools:context=".ActivityMain" >
+    <TextView
+        android:id="@+id/MinuteText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dip"
+        android:maxLines="1"
+        android:textSize="120sp"
+        android:textStyle="bold"
+        android:text="00" />
+    <TextView
+        android:id="@+id/ColonText"
+        android:layout_width="24dip"
+        android:layout_height="wrap_content"
+        android:textSize="120sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dip"
+        android:layout_toRightOf="@id/MinuteText"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:text="@string/Delimiter" />
+    <TextView
+        android:id="@+id/SecondText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/ColonText"
+        android:layout_centerVertical="true"
+        android:maxLines="1"
+        android:textSize="120sp"
+        android:textStyle="bold"
+        android:text="00" />
+    <TextView
+	    android:id="@+id/MillisecondText"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_centerVertical="true"
+	    android:textSize="48sp"
+	    android:layout_toRightOf="@id/SecondText"
+	    android:paddingBottom="44dip"
+	    android:text="0" />
     <LinearLayout
-        android:id="@+id/TimeLayout"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_margin="8dip"
         android:layout_centerInParent="true"
-        android:gravity="center" >
-        <RelativeLayout
-            android:id="@+id/Minute"
-            android:layout_height="wrap_content"
-            android:layout_width="160dip"
-            android:gravity="right|center_vertical" >
-            <net.simonvt.widget.NumberPicker
-                android:id="@+id/MinutePicker"
-                android:layout_width="match_parent"
-                android:layout_height="240dip"
-                android:layout_centerInParent="true"
-                android:visibility="invisible" />
-            <TextView
-	            android:id="@+id/MinuteText"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-	            android:textSize="84sp"
-	            android:gravity="right|center_vertical" />
-        </RelativeLayout>
-        <TextView
-            android:id="@+id/ColonText"
-            android:layout_width="20dip"
-            android:layout_height="wrap_content"
-            android:textSize="84sp"
-            android:layout_gravity="center"
-            android:paddingBottom="12dip"
-            android:text=":" />
-        <RelativeLayout
-            android:id="@+id/Second"
-            android:layout_height="wrap_content"
-            android:layout_width="120dip"
-            android:gravity="left|center_vertical" >
-            <net.simonvt.widget.NumberPicker
-                android:id="@+id/SecondPicker"
-                android:layout_width="match_parent"
-                android:layout_height="240dip"
-                android:layout_centerInParent="true"
-                android:visibility="invisible" />
-            <TextView
-                android:id="@+id/SecondText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:gravity="left|center_vertical"
-                android:textSize="84sp" />
-        </RelativeLayout>
-        <TextView
-            android:id="@+id/MillisecondText"
-            android:layout_width="40dip"
-            android:layout_height="match_parent"
-            android:textSize="48sp"
-            android:layout_gravity="center"
-            android:paddingTop="72dip"
-            android:gravity="left|top" />
+        android:gravity="center"
+        android:weightSum="1"
+        android:orientation="horizontal" >
+        <net.simonvt.widget.NumberPicker
+	        android:id="@+id/MinutePicker"
+	        android:layout_width="120dip"
+	        android:layout_height="240dip"
+	        android:layout_weight="0.5"
+	        android:visibility="gone" />
+        <net.simonvt.widget.NumberPicker
+	        android:id="@+id/SecondPicker"
+	        android:layout_width="120dip"
+	        android:layout_height="240dip"
+	        android:layout_weight="0.5"
+	        android:visibility="gone" />
     </LinearLayout>
     <Button
         android:id="@+id/DoneButton"
@@ -75,17 +71,18 @@
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="DONE"
+        android:text="@string/Done"
         android:padding="10dip"
         android:layout_marginLeft="40dip"
-        android:layout_marginRight="40dip" />
+        android:layout_marginRight="40dip"
+        android:textSize="24sp" />
     <CheckBox
         android:id="@+id/LoopCheck"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_above="@id/DoneButton"
         android:checked="true"
-        android:text="Repeat"
+        android:text="@string/Repeat"
         android:layout_centerHorizontal="true"
         android:padding="10dip"
         android:layout_marginLeft="40dip"

@@ -81,6 +81,10 @@ public class TimerService extends Service {
         isRunning = false;
     }
     
+    public boolean isTimerRunning() {
+        return isRunning;
+    }
+    
     private final IBinder mBinder = new TimerBinder();
     
     public class TimerBinder extends Binder {
