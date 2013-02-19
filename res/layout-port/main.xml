@@ -48,44 +48,47 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
         android:gravity="center"
-        android:weightSum="1"
         android:orientation="horizontal" >
         <net.simonvt.widget.NumberPicker
 	        android:id="@+id/MinutePicker"
 	        android:layout_width="120dip"
-	        android:layout_height="240dip"
-	        android:layout_weight="0.5"
+	        android:layout_height="480dip"
 	        android:visibility="gone" />
         <net.simonvt.widget.NumberPicker
 	        android:id="@+id/SecondPicker"
 	        android:layout_width="120dip"
-	        android:layout_height="240dip"
-	        android:layout_weight="0.5"
+	        android:layout_height="480dip"
 	        android:visibility="gone" />
     </LinearLayout>
     <Button
         android:id="@+id/DoneButton"
+        android:background="@drawable/button"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:text="@string/Done"
-        android:padding="10dip"
-        android:layout_marginLeft="40dip"
-        android:layout_marginRight="40dip"
-        android:textSize="24sp" />
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        android:layout_marginTop="8dip"
+        android:textSize="24sp"
+        android:textStyle="bold" />
     <CheckBox
         android:id="@+id/LoopCheck"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_above="@id/DoneButton"
         android:checked="true"
         android:text="@string/Repeat"
         android:layout_centerHorizontal="true"
-        android:padding="10dip"
-        android:layout_marginLeft="40dip"
-        android:layout_marginRight="40dip"
-        android:gravity="center" />
+        android:paddingTop="8dip"
+        android:paddingBottom="8dip"
+        android:paddingLeft="40dip"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:button="@drawable/btn_check_holo_dark" />
 </RelativeLayout>

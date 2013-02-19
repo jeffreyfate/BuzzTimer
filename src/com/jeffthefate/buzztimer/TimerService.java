@@ -44,6 +44,7 @@ public class TimerService extends Service {
         if (timer != null)
             timer.cancel();
         timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
+        isRunning = false;
         return Service.START_STICKY_COMPATIBILITY;
     }
     
@@ -93,13 +94,13 @@ public class TimerService extends Service {
         }
     }
     
-    public void setTime(int minute, int second, boolean loop) {
+    public void setTime(boolean loop) {
         this.loop = loop;
-        ApplicationEx.setMsecs(minute*60000 + second*1000);
         ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
         if (timer != null)
             timer.cancel();
         timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
+        isRunning = false;
     }
     
     private class Timer extends CountDownTimer {
@@ -128,7 +129,7 @@ public class TimerService extends Service {
                 uiCallback.updateTime((int)ApplicationEx.getMsecs());
             Vibrator v = (Vibrator) ApplicationEx.getApp().getSystemService(
                     Context.VIBRATOR_SERVICE);
-            v.vibrate(2000);
+            v.vibrate(new long[] {500, 1000, 1000, 2000, 2000, 3000}, 2);
             if (loop)
                 this.start();
         }

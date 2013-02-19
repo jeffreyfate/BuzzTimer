@@ -7,7 +7,7 @@
     <string name="loop_key">loop</string>
     
     <string name="Repeat">REPEAT FOREVER</string>
-    <string name="Done">DONE</string>
+    <string name="Done">SET</string>
     <string name="Delimiter">:</string>
 
 </resources>

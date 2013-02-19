@@ -2,14 +2,17 @@ package com.jeffthefate.buzztimer;
 
 import java.io.File;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.widget.Toast;
 
 /**
  * Used as a holder of many values and objects for the entire application.
  * 
  * @author Jeff Fate
  */
+@SuppressLint("ShowToast")
 public class ApplicationEx extends Application {
     /**
      * The application's context
@@ -18,11 +21,13 @@ public class ApplicationEx extends Application {
     public static DatabaseHelper dbHelper;
     private static boolean mIsActive = false;
     private static int mSecs = 60000;
+    public static Toast mToast;
     
     @Override
     public void onCreate() {
         super.onCreate();
         app = this;
+        mToast = Toast.makeText(app, "", Toast.LENGTH_LONG);
         dbHelper = DatabaseHelper.getInstance();
         dbHelper.checkUpgrade();
     }
