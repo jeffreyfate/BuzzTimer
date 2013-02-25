@@ -1,6 +1,5 @@
 package com.jeffthefate.buzztimer;
 
-import java.io.File;
 
 
 public class Constants {

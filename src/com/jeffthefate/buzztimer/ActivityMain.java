@@ -11,22 +11,18 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jeffthefate.buzztimer.TimerService.TimerBinder;
 import com.jeffthefate.buzztimer.TimerService.UiCallback;
@@ -48,9 +44,10 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     
     private boolean bound;
     
-    
     private int newMin = 1;
     private int newSec = 0;
+    
+    private TranslateAnimation screenSaver;
     
     private UiCallback uiCallback = this;
 
@@ -234,6 +231,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         }
         bindService(new Intent(getApplicationContext(), TimerService.class),
                 mConnection, 0);
+        ApplicationEx.setActive();
     }
     
     @Override
@@ -242,6 +240,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
             unbindService(mConnection);
             bound = false;
         }
+        ApplicationEx.setInactive();
         super.onPause();
     }
     
