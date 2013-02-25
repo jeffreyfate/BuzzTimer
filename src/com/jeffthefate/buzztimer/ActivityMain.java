@@ -14,9 +14,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,7 +33,6 @@ import com.jeffthefate.buzztimer.TimerService.UiCallback;
 
 public class ActivityMain extends FragmentActivity implements UiCallback {
     
-    private FragmentManager fMan;
     private static TextView minText;
     private NumberPicker minPicker;
     private static TextView secText;
@@ -46,7 +47,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private SharedPreferences sharedPrefs;
     
     private boolean bound;
-    private boolean loop;
+    
     
     private int newMin = 1;
     private int newSec = 0;
@@ -56,12 +57,11 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fMan = getSupportFragmentManager();
         setContentView(R.layout.main);
         minText = (TextView) findViewById(R.id.MinuteText);
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
         minPicker.setFormatter(new TimerFormatter());
-        minPicker.setMaxValue(60);
+        minPicker.setMaxValue(59);
         minPicker.setMinValue(0);
         minPicker.setOnValueChangedListener(new OnValueChangeListener() {
             @Override
@@ -81,6 +81,11 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
             public void onValueChange(NumberPicker picker, int oldVal,
                     int newVal) {
                 newSec = newVal;
+                if (oldVal == 0 && newVal == 59)
+                	minPicker.setValue(--newMin);
+                else if (oldVal == 59 && newVal == 0)
+                	minPicker.setValue(++newMin);
+                newMin = minPicker.getValue();
                 setTime(newMin, newSec);
             }
         });
@@ -152,6 +157,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     ApplicationEx.mToast.show();
                 }
                 else {
+                	sharedPrefs.edit().putInt(getString(R.string.msec_key),
+                            ApplicationEx.getMsecs()).commit();
                     setTime(newMin, newSec);
                     if (mService != null) {
                         if (mService.isTimerRunning())
@@ -220,7 +227,6 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     @Override
     public void onResume() {
         super.onResume();
-        loop = sharedPrefs.getBoolean(getString(R.string.loop_key), true);
         if (mService == null) {
             Intent timerIntent = new Intent(getApplicationContext(),
                     TimerService.class);
@@ -266,6 +272,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     }
     
     private void setTime(int minutes, int seconds) {
+    	Log.i(Constants.LOG_TAG, "setTime minutes: " + minutes);
+    	Log.i(Constants.LOG_TAG, "setTime seconds: " + seconds);
         ApplicationEx.setMsecs((minutes*60000)+(seconds*1000));
         updateTime((minutes*60000)+(seconds*1000));
     }

@@ -5,6 +5,8 @@ import java.io.File;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 /**
@@ -20,8 +22,9 @@ public class ApplicationEx extends Application {
     private static Context app;
     public static DatabaseHelper dbHelper;
     private static boolean mIsActive = false;
-    private static int mSecs = 60000;
+    private static int mSecs;
     public static Toast mToast;
+    private static SharedPreferences sharedPrefs;
     
     @Override
     public void onCreate() {
@@ -30,6 +33,9 @@ public class ApplicationEx extends Application {
         mToast = Toast.makeText(app, "", Toast.LENGTH_LONG);
         dbHelper = DatabaseHelper.getInstance();
         dbHelper.checkUpgrade();
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(
+                ApplicationEx.getApp());
+        mSecs = sharedPrefs.getInt(app.getString(R.string.msec_key), 60000);
     }
     /**
      * Used by other classes to get the application's global context.

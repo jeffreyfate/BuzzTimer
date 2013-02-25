@@ -129,7 +129,7 @@ public class TimerService extends Service {
                 uiCallback.updateTime((int)ApplicationEx.getMsecs());
             Vibrator v = (Vibrator) ApplicationEx.getApp().getSystemService(
                     Context.VIBRATOR_SERVICE);
-            v.vibrate(new long[] {500, 1000, 1000, 2000, 2000, 3000}, 2);
+            v.vibrate(new long[] {0, 500, 500, 1000}, -1);
             if (loop)
                 this.start();
         }
