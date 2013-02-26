@@ -22,9 +22,8 @@ public class ApplicationEx extends Application {
     private static Context app;
     public static DatabaseHelper dbHelper;
     private static boolean mIsActive = false;
-    private static int mSecs;
+    private static int mSecs = -1;
     public static Toast mToast;
-    private static SharedPreferences sharedPrefs;
     
     @Override
     public void onCreate() {
@@ -33,9 +32,8 @@ public class ApplicationEx extends Application {
         mToast = Toast.makeText(app, "", Toast.LENGTH_LONG);
         dbHelper = DatabaseHelper.getInstance();
         dbHelper.checkUpgrade();
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(
-                ApplicationEx.getApp());
-        mSecs = sharedPrefs.getInt(app.getString(R.string.msec_key), 60000);
+        mSecs = ApplicationEx.dbHelper.getTime() < 0 ? 60000 :
+        		ApplicationEx.dbHelper.getTime();
     }
     /**
      * Used by other classes to get the application's global context.

@@ -153,7 +153,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int getTime() {
         Cursor cur = db.query(TIMER_TABLE, new String[] {COL_MSEC}, null, null,
                 null, null, null);
-        int time = 0;
+        int time = -1;
         if (cur.moveToFirst()) {
             time = cur.getInt(cur.getColumnIndex(COL_MSEC));
         }

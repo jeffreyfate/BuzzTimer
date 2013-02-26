@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme for API 11+. This theme completely replaces
@@ -6,6 +6,101 @@
     -->
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 11 theme customizations can go here. -->
+    </style>
+    
+    <style name="DarkTheme" parent="android:Theme.Black.NoTitleBar">
+        <item name="numberPickerUpButtonStyle">@style/NPWidget.Holo.ImageButton.NumberPickerUpButton</item>
+        <item name="numberPickerDownButtonStyle">@style/NPWidget.Holo.ImageButton.NumberPickerDownButton</item>
+        <item name="numberPickerInputTextStyle">@style/EditText</item>
+        <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
+    </style>
+    
+    <style name="WhiteText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+    
+    <style name="PortraitWhiteText" parent="WhiteText">
+        <item name="android:textSize">120sp</item>
+    </style>
+    
+    <style name="MinutePortraitWhiteText" parent="PortraitWhiteText">
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+    
+    <style name="ColonPortraitWhiteText" parent="PortraitWhiteText">
+        <item name="android:layout_width">24dip</item>
+        <item name="android:paddingBottom">16dip</item>
+        <item name="android:layout_toRightOf">@id/MinuteText</item>
+    </style>
+    
+    <style name="SecondPortraitWhiteText" parent="PortraitWhiteText">
+        <item name="android:layout_toRightOf">@id/ColonText</item>
+    </style>
+    
+    <style name="TenthPortraitWhiteText" parent="PortraitWhiteText">
+        <item name="android:textSize">48sp</item>
+        <item name="android:paddingBottom">44dip</item>
+        <item name="android:layout_toRightOf">@id/SecondText</item>
+    </style>
+    
+    <style name="LandscapeWhiteText" parent="WhiteText">
+        <item name="android:textSize">200sp</item>
+    </style>
+    
+    <style name="MinuteLandscapeWhiteText" parent="LandscapeWhiteText">
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+    
+    <style name="ColonLandscapeWhiteText" parent="LandscapeWhiteText">
+        <item name="android:layout_width">40dip</item>
+        <item name="android:paddingBottom">28dip</item>
+        <item name="android:layout_toRightOf">@id/MinuteText</item>
+    </style>
+    
+    <style name="SecondLandscapeWhiteText" parent="LandscapeWhiteText">
+        <item name="android:layout_toRightOf">@id/ColonText</item>
+    </style>
+    
+    <style name="TenthLandscapeWhiteText" parent="LandscapeWhiteText">
+        <item name="android:textSize">80sp</item>
+        <item name="android:paddingBottom">72dip</item>
+        <item name="android:layout_toRightOf">@id/SecondText</item>
+    </style>
+    
+    <style name="LoopCheck">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:checked">true</item>
+        <item name="android:padding">10dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:text">@string/Repeat</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:checkMark">@drawable/btn_check_holo_dark</item>
+    </style>
+    
+    <style name="DoneButton">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:paddingLeft">60dip</item>
+        <item name="android:paddingRight">60dip</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:layout_marginTop">8dip</item>
+        <item name="android:text">@string/Done</item>
     </style>
 
 </resources>

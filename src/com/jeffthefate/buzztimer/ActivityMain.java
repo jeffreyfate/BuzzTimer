@@ -7,11 +7,11 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +19,7 @@ import android.view.View.OnLongClickListener;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
@@ -29,15 +30,15 @@ import com.jeffthefate.buzztimer.TimerService.UiCallback;
 
 public class ActivityMain extends FragmentActivity implements UiCallback {
     
-    private static TextView minText;
+    private TextView minText;
     private NumberPicker minPicker;
-    private static TextView secText;
-    private static TextView msecText;
+    private TextView secText;
+    private TextView msecText;
     private NumberPicker secPicker;
     private RelativeLayout timeLayout;
     private TextView colonText;
     
-    private CheckBox loopCheck;
+    private CheckedTextView loopCheck;
     private Button doneButton;
     
     private SharedPreferences sharedPrefs;
@@ -47,15 +48,16 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private int newMin = 1;
     private int newSec = 0;
     
-    private TranslateAnimation screenSaver;
-    
     private UiCallback uiCallback = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Typeface font = Typeface.createFromAsset(getAssets(),
+        		"fonts/digital-7.ttf");
         setContentView(R.layout.main);
-        minText = (TextView) findViewById(R.id.MinuteText);
+        minText = (TextView) findViewById(R.id.MinuteText);  
+        minText.setTypeface(font);
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
         minPicker.setFormatter(new TimerFormatter());
         minPicker.setMaxValue(59);
@@ -68,7 +70,9 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 setTime(newMin, newSec);
             }
         });
+        minPicker.setTypeface(font);
         secText = (TextView) findViewById(R.id.SecondText);
+        secText.setTypeface(font);
         secPicker = (NumberPicker) findViewById(R.id.SecondPicker);
         secPicker.setFormatter(new TimerFormatter());
         secPicker.setMaxValue(59);
@@ -86,7 +90,9 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 setTime(newMin, newSec);
             }
         });
+        secPicker.setTypeface(font);
         msecText = (TextView) findViewById(R.id.MillisecondText);
+        msecText.setTypeface(font);
         timeLayout = (RelativeLayout) findViewById(R.id.TimeLayout);
         timeLayout.setOnClickListener(new OnClickListener() {
             @Override
@@ -97,7 +103,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 }
                 else {
                     if (mService != null) {
-                        updateTime(ApplicationEx.getMsecs());
+                        updateTime(ApplicationEx.getMsecs(), false);
                         if (!mService.isTimerRunning()) {
                             mService.setTime(loopCheck.isChecked());
                             mService.startTimer();
@@ -113,6 +119,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         timeLayout.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+            	if (mService.isTimerRunning())
+            		mService.stopTimer();
                 if (minPicker.getVisibility() == View.GONE &&
                         secPicker.getVisibility() == View.GONE) {
                     colonText.setVisibility(View.INVISIBLE);
@@ -130,16 +138,18 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
             }
         });
         colonText = (TextView) findViewById(R.id.ColonText);
-        loopCheck = (CheckBox) findViewById(R.id.LoopCheck);
+        colonText.setTypeface(font);
+        loopCheck = (CheckedTextView) findViewById(R.id.LoopCheck);
         loopCheck.setVisibility(View.INVISIBLE);
-        loopCheck.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                    boolean isChecked) {
-                sharedPrefs.edit().putBoolean(getString(R.string.loop_key),
-                        isChecked).commit();
-            }
+        loopCheck.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				loopCheck.toggle();
+				sharedPrefs.edit().putBoolean(getString(R.string.loop_key),
+                        loopCheck.isChecked()).commit();
+			}
         });
+        loopCheck.setTypeface(font);
         doneButton = (Button) findViewById(R.id.DoneButton);
         doneButton.setVisibility(View.INVISIBLE);
         doneButton.setOnClickListener(new OnClickListener() {
@@ -154,8 +164,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     ApplicationEx.mToast.show();
                 }
                 else {
-                	sharedPrefs.edit().putInt(getString(R.string.msec_key),
-                            ApplicationEx.getMsecs()).commit();
+                	ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
                     setTime(newMin, newSec);
                     if (mService != null) {
                         if (mService.isTimerRunning())
@@ -173,6 +182,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 }
             }
         });
+        doneButton.setTypeface(font);
         if (savedInstanceState != null) {
             minText.setText(savedInstanceState.getString("minText"));
             secText.setText(savedInstanceState.getString("secText"));
@@ -190,7 +200,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
             msecText.setVisibility(savedInstanceState.getInt("msecTextVis"));
         }
         else
-            updateTime(ApplicationEx.getMsecs());
+            updateTime(ApplicationEx.getMsecs(), true);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(
                 ApplicationEx.getApp());
         minPicker.setValue(newMin);
@@ -261,9 +271,13 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     };
     
     @Override
-    public void updateTime(int mSecs) {
+    public void updateTime(int mSecs, boolean setLocal) {
         int mins = (int)((mSecs-(mSecs%60000))/60000);
         int secs = (int)((mSecs%60000)/1000);
+        if (setLocal) {
+        	newMin = mins;
+        	newSec = secs;
+        }
         int millis = (int)((mSecs%1000)/100);
         minText.setText(mins < 10 ? "0" + mins : Integer.toString(mins));
         secText.setText(secs < 10 ? "0" + secs : Integer.toString(secs));
@@ -271,10 +285,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     }
     
     private void setTime(int minutes, int seconds) {
-    	Log.i(Constants.LOG_TAG, "setTime minutes: " + minutes);
-    	Log.i(Constants.LOG_TAG, "setTime seconds: " + seconds);
         ApplicationEx.setMsecs((minutes*60000)+(seconds*1000));
-        updateTime((minutes*60000)+(seconds*1000));
+        updateTime((minutes*60000)+(seconds*1000), false);
     }
     
     private class TimerFormatter implements Formatter {

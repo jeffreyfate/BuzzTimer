@@ -5,6 +5,7 @@
         <item name="android:paddingTop">0sp</item>
         <item name="android:paddingBottom">0sp</item>
         <item name="android:textColorHighlight">@android:color/black</item>
+        <item name="android:cursorVisible">false</item>
     </style>
 
 </resources>

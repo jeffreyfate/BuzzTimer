@@ -4,91 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ActivityMain" >
-    <TextView
-        android:id="@+id/MinuteText"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="16dip"
-        android:maxLines="1"
-        android:textSize="120sp"
-        android:textStyle="bold"
-        android:text="00" />
-    <TextView
-        android:id="@+id/ColonText"
-        android:layout_width="24dip"
-        android:layout_height="wrap_content"
-        android:textSize="120sp"
-        android:textStyle="bold"
-        android:paddingBottom="16dip"
-        android:layout_toRightOf="@id/MinuteText"
-        android:layout_centerVertical="true"
-        android:gravity="center"
-        android:text="@string/Delimiter" />
-    <TextView
-        android:id="@+id/SecondText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/ColonText"
-        android:layout_centerVertical="true"
-        android:maxLines="1"
-        android:textSize="120sp"
-        android:textStyle="bold"
-        android:text="00" />
-    <TextView
-	    android:id="@+id/MillisecondText"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_centerVertical="true"
-	    android:textSize="48sp"
-	    android:layout_toRightOf="@id/SecondText"
-	    android:paddingBottom="44dip"
-	    android:text="0" />
+        android:layout_centerInParent="true" >
+	    <TextView
+	        android:id="@+id/MinuteText"
+	        style="@style/MinutePortraitWhiteText"
+	        android:text="00" />
+	    <TextView
+	        android:id="@+id/ColonText"
+	        style="@style/ColonPortraitWhiteText"
+	        android:text="@string/Delimiter" />
+	    <TextView
+	        android:id="@+id/SecondText"
+	        style="@style/SecondPortraitWhiteText"
+	        android:text="00" />
+	    <TextView
+		    android:id="@+id/MillisecondText"
+		    style="@style/TenthPortraitWhiteText"
+		    android:text="0" />
+	</RelativeLayout>
+    <Button
+        android:id="@+id/DoneButton"
+        style="@style/DoneButton" />
+    <CheckedTextView
+        android:id="@+id/LoopCheck"
+        style="@style/LoopCheck" />
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
+        android:layout_above="@id/DoneButton"
         android:gravity="center"
         android:orientation="horizontal" >
         <net.simonvt.widget.NumberPicker
-	        android:id="@+id/MinutePicker"
-	        android:layout_width="120dip"
-	        android:layout_height="480dip"
-	        android:visibility="gone" />
+            android:id="@+id/MinutePicker"
+            android:layout_width="120dip"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
         <net.simonvt.widget.NumberPicker
-	        android:id="@+id/SecondPicker"
-	        android:layout_width="120dip"
-	        android:layout_height="480dip"
-	        android:visibility="gone" />
+            android:id="@+id/SecondPicker"
+            android:layout_width="120dip"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </LinearLayout>
-    <Button
-        android:id="@+id/DoneButton"
-        android:background="@drawable/button"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:text="@string/Done"
-        android:paddingLeft="20dip"
-        android:paddingRight="20dip"
-        android:layout_marginTop="8dip"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-    <CheckBox
-        android:id="@+id/LoopCheck"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_above="@id/DoneButton"
-        android:checked="true"
-        android:text="@string/Repeat"
-        android:layout_centerHorizontal="true"
-        android:paddingTop="8dip"
-        android:paddingBottom="8dip"
-        android:paddingLeft="40dip"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:button="@drawable/btn_check_holo_dark" />
 </RelativeLayout>

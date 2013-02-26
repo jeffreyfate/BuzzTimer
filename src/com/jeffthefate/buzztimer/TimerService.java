@@ -1,13 +1,21 @@
 package com.jeffthefate.buzztimer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.util.Log;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * Service that runs in the background.  Registers receivers for actions that
@@ -20,9 +28,13 @@ public class TimerService extends Service {
     private boolean loop = true;
     private boolean isRunning = false;
     private Timer timer;
+    private Notification notification;
+    private NotificationCompat.Builder nBuilder;
+    private Resources res;
+    private NotificationManager nManager;
     
     public interface UiCallback {
-        public void updateTime(int mSecs);
+        public void updateTime(int mSecs, boolean setLocal);
     }
     
     private UiCallback uiCallback;
@@ -30,12 +42,16 @@ public class TimerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        res = ApplicationEx.getApp().getResources();
+        nManager = (NotificationManager) getSystemService(
+        		Context.NOTIFICATION_SERVICE);
     }
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        ApplicationEx.setMsecs(ApplicationEx.dbHelper.getTime());
+        if (ApplicationEx.getMsecs() < 0)
+        	ApplicationEx.setMsecs(ApplicationEx.dbHelper.getTime());
         if (timer != null)
             timer.cancel();
         timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
@@ -59,7 +75,6 @@ public class TimerService extends Service {
     }
     
     public void startTimer() {
-        Log.i(Constants.LOG_TAG, "TimerService mSecs: " + ApplicationEx.getMsecs());
         isRunning = true;
         if (timer != null) {
             timer.cancel();
@@ -69,12 +84,56 @@ public class TimerService extends Service {
             timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
             timer.start();
         }
+        makeText(ApplicationEx.getMsecs());
+        showNotification(true);
+    }
+    
+    private String text;
+    private String ticker;
+    
+    private void makeText(int milliseconds) {
+    	makeTicker(ApplicationEx.getMsecs());
+    	int mins = (int)((milliseconds-(milliseconds%60000))/60000);
+        int secs = (int)((milliseconds%60000)/1000);
+        text = Integer.toString(mins) + ":" + (secs >= 10 ?
+        		Integer.toString(secs) : "0" + secs);
+        text = text + " / " + ticker;
+    }
+    
+    private void makeTicker(int milliseconds) {
+    	int mins = (int)((milliseconds-(milliseconds%60000))/60000);
+        int secs = (int)((milliseconds%60000)/1000);
+        ticker = Integer.toString(mins) + ":" + (secs >= 10 ?
+        		Integer.toString(secs) : "0" + secs);
+    }
+    
+    private void showNotification(boolean showTicker) {
+        Intent notificationIntent = new Intent(ApplicationEx.getApp(),
+        		ActivityMain.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+        		Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+        		ApplicationEx.getApp(), 0, notificationIntent,
+        		Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        nBuilder = new NotificationCompat.Builder(ApplicationEx.getApp());
+        nBuilder.setLargeIcon(BitmapFactory.decodeResource(res,
+        		R.drawable.ic_launcher)).
+    		setSmallIcon(R.drawable.ic_launcher).
+    		setWhen(System.currentTimeMillis()).
+    		setContentTitle(text).
+    		setContentText("Touch to stop or edit").
+    		setContentIntent(pendingIntent);
+        if (showTicker)
+        	nBuilder.setTicker(ticker);
+        notification = nBuilder.build();
+        startForeground(Constants.NOTIFICATION_RUNNING, notification);
     }
     
     public void stopTimer() {
         if (timer != null)
             timer.cancel();
         isRunning = false;
+        stopForeground(true);
     }
     
     public boolean isTimerRunning() {
@@ -91,7 +150,6 @@ public class TimerService extends Service {
     
     public void setTime(boolean loop) {
         this.loop = loop;
-        ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
         if (timer != null)
             timer.cancel();
         timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
@@ -105,29 +163,31 @@ public class TimerService extends Service {
                 boolean loop) {
             super(millisInFuture, countDownInterval);
             this.loop = loop;
-            ApplicationEx.dbHelper.setTime(millisInFuture);
             if (uiCallback != null)
-                uiCallback.updateTime((int)millisInFuture);
+                uiCallback.updateTime((int)millisInFuture, false);
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
-            ApplicationEx.dbHelper.setTime(millisUntilFinished);
             if (uiCallback != null)
-                uiCallback.updateTime((int)millisUntilFinished);
+                uiCallback.updateTime((int)millisUntilFinished, false);
+            makeText((int) millisUntilFinished);
+            showNotification(false);
         }
         
         @Override
         public void onFinish() {
-            ApplicationEx.dbHelper.setTime(ApplicationEx.getMsecs());
             if (uiCallback != null)
-                uiCallback.updateTime((int)ApplicationEx.getMsecs());
+                uiCallback.updateTime((int)ApplicationEx.getMsecs(), false);
             Vibrator v = (Vibrator) ApplicationEx.getApp().getSystemService(
                     Context.VIBRATOR_SERVICE);
             v.vibrate(new long[] {0, 500, 500, 1000}, -1);
-            if (loop)
+            if (loop) {
+            	showNotification(true);
                 this.start();
+            }
+            else
+            	stopForeground(true);
         }
     }
-
 }
