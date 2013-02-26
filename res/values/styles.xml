@@ -37,7 +37,7 @@
     
     <style name="TenthPortraitWhiteText" parent="PortraitWhiteText">
         <item name="android:textSize">48sp</item>
-        <item name="android:paddingBottom">44dip</item>
+        <item name="android:layout_alignTop">@id/SecondText</item>
         <item name="android:layout_toRightOf">@id/SecondText</item>
     </style>
     
@@ -61,7 +61,7 @@
     
     <style name="TenthLandscapeWhiteText" parent="LandscapeWhiteText">
         <item name="android:textSize">80sp</item>
-        <item name="android:paddingBottom">72dip</item>
+        <item name="android:layout_alignTop">@id/SecondText</item>
         <item name="android:layout_toRightOf">@id/SecondText</item>
     </style>
     
