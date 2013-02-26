@@ -11,7 +11,7 @@
 	    <TextView
 	        android:id="@+id/MinuteText"
 	        style="@style/MinuteLandscapeWhiteText"
-	        android:text="00" />
+	        android:text="@string/MinuteText" />
 	    <TextView
 	        android:id="@+id/ColonText"
 	        style="@style/ColonLandscapeWhiteText"
@@ -19,11 +19,11 @@
 	    <TextView
 	        android:id="@+id/SecondText"
 	        style="@style/SecondLandscapeWhiteText"
-	        android:text="00" />
+	        android:text="@string/SecondText" />
 	    <TextView
 	        android:id="@+id/MillisecondText"
 	        style="@style/TenthLandscapeWhiteText"
-	        android:text="0" />
+	        android:text="@string/TenthText" />
     </RelativeLayout>
     <CheckedTextView
         android:id="@+id/LoopCheck"

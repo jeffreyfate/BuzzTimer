@@ -10,5 +10,9 @@
     <string name="Repeat">REPEAT FOREVER</string>
     <string name="Done">SET</string>
     <string name="Delimiter">:</string>
+    
+    <string name="MinuteText">00</string>
+    <string name="SecondText">00</string>
+    <string name="TenthText">0</string>
 
 </resources>
