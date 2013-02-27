@@ -8,4 +8,7 @@ public class Constants {
     
     public static final int NOTIFICATION_RUNNING = 3641;
     
+    public static final String ACTION_STOP_TIMER =
+    		"com.jeffthefate.buzztimer.ACTION_STOP_TIMER";
+    
 }

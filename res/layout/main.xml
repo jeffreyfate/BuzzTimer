@@ -4,6 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ActivityMain" >
+    <ImageView
+        android:id="@+id/Background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@android:color/black"
+        android:contentDescription="@string/backgroundImage"
+        android:alpha="0.5" />
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,12 +40,7 @@
         android:id="@+id/DoneButton"
         style="@style/DoneButton" />
     <LinearLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:orientation="horizontal" >
+        style="@style/NumberPickerLayout" >
         <net.simonvt.widget.NumberPicker
             android:id="@+id/MinutePicker"
             android:layout_width="120dip"

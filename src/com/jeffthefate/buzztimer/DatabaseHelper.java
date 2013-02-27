@@ -26,11 +26,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TIMER_TABLE = "Timer";
     
     public static final String COL_MSEC = "MSec";
+    public static final String COL_BACKGROUND = "Background";
     /**
      * Create timer table string
      */
     private static final String CREATE_TIMER_TABLE = "CREATE TABLE " + 
-            TIMER_TABLE + " (" + COL_MSEC + " INTEGER DEFAULT 60000)";
+            TIMER_TABLE + " (" + COL_MSEC + " INTEGER DEFAULT 60000, " +
+    		COL_BACKGROUND + " TEXT)";
     /**
      * Create the helper object that creates and manages the database.
      * 
@@ -161,6 +163,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return time;
     }
     
+    public long setCurrBackground(String currBackground) {
+    	if (currBackground == null)
+    		return -1;
+        long returnValue = -1;
+        ContentValues cv = new ContentValues();
+        cv.put(COL_BACKGROUND, currBackground);
+        returnValue = updateRecord(cv, TIMER_TABLE, null, new String[] {});
+        return returnValue;
+    }
+    
+    public String getCurrBackground() {
+        Cursor cur = db.query(TIMER_TABLE, new String[] {COL_BACKGROUND},
+                null, new String[] {}, null, null, null);
+        String background = null;
+        if (cur.moveToFirst())
+            background = cur.getString(cur.getColumnIndex(COL_BACKGROUND));
+        cur.close();
+        return background;
+    }
+    
     public void checkUpgrade() {
         Cursor cur = db.query(TIMER_TABLE, null, null, null, null, null, null);
         String[] colArray = cur.getColumnNames();
@@ -170,6 +192,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (!colList.contains(COL_MSEC)) {
             sqlString = "ALTER TABLE " + TIMER_TABLE + " ADD " +
                     COL_MSEC + " INTEGER DEFAULT 60000";
+            try {
+                db.execSQL(sqlString);
+            } catch (SQLException e) {
+                Log.e(Constants.LOG_TAG, "Bad SQL string: " + sqlString, e);
+            }
+        }
+        if (!colList.contains(COL_BACKGROUND)) {
+            sqlString = "ALTER TABLE " + TIMER_TABLE + " ADD " +
+            		COL_BACKGROUND + " TEXT";
             try {
                 db.execSQL(sqlString);
             } catch (SQLException e) {

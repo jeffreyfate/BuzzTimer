@@ -1,5 +1,8 @@
 package com.jeffthefate.buzztimer;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 import net.simonvt.widget.NumberPicker;
 import net.simonvt.widget.NumberPicker.Formatter;
 import net.simonvt.widget.NumberPicker.OnValueChangeListener;
@@ -7,7 +10,13 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -18,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -37,6 +47,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private CheckedTextView loopCheck;
     private Button doneButton;
     
+    private ImageView background;
+    
     private SharedPreferences sharedPrefs;
     
     private boolean bound;
@@ -45,13 +57,38 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private int newSec = 0;
     
     private UiCallback uiCallback = this;
+    
+    private int rawIndex = -1;
+    private Field[] fields;
+    private ArrayList<Integer> fieldsList;
+    private String currentBackground = null;
+    
+    private Drawable backgroundDrawable;
+    private Drawable tempDrawable;
+    private Drawable[] arrayDrawable = new Drawable[2];
+    private TransitionDrawable transitionDrawable;
+    private BitmapDrawable oldBitmapDrawable = null;
+    
+    private Resources res;
 
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Typeface font = Typeface.createFromAsset(getAssets(),
         		"fonts/digital-7.ttf");
+        res = getResources();
         setContentView(R.layout.main);
+        fields = R.drawable.class.getFields();
+        fieldsList = new ArrayList<Integer>();
+        for (Field field : fields) {
+            if (field.getName().contains("background")) {
+                try {
+                    fieldsList.add(field.getInt(null));
+                } catch (IllegalArgumentException e1) {e1.printStackTrace();
+                } catch (IllegalAccessException e1) {e1.printStackTrace();}
+            }
+        }
+        background = (ImageView) findViewById(R.id.Background);
         minText = (TextView) findViewById(R.id.MinuteText);  
         minText.setTypeface(font);
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
@@ -176,6 +213,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     doneButton.setVisibility(View.INVISIBLE);
                     colonText.setVisibility(View.VISIBLE);
                 }
+                setBackground(ApplicationEx.dbHelper.getCurrBackground(), true);
             }
         });
         doneButton.setTypeface(font);
@@ -238,6 +276,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         bindService(new Intent(getApplicationContext(), TimerService.class),
                 mConnection, 0);
         ApplicationEx.setActive();
+        setBackground(ApplicationEx.dbHelper.getCurrBackground(),
+                false);
     }
     
     @Override
@@ -292,6 +332,117 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 return "0" + value;
             else
                 return Integer.toString(value);
+        }
+    }
+    
+    public void setBackground(String name, boolean showNew) {
+        if (Build.VERSION.SDK_INT <
+                Build.VERSION_CODES.HONEYCOMB)
+            new SetBackgroundTask(name, showNew).execute();
+        else
+            new SetBackgroundTask(name, showNew).executeOnExecutor(
+                    AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+    
+    private class SetBackgroundTask extends AsyncTask<Void, Void, Void> {
+        private String name;
+        private boolean showNew;
+        private int resourceId;
+        
+        private SetBackgroundTask(String name, boolean showNew) {
+            this.name = name;
+            this.showNew = showNew;
+        }
+        
+        @Override
+        protected Void doInBackground(Void... nothing) {
+            if (name == null)
+                name = "background1";
+            resourceId = res.getIdentifier(name, "drawable", getPackageName());
+            if (showNew) {
+                rawIndex = fieldsList.indexOf(resourceId);
+                if (rawIndex < 0)
+                    rawIndex = fieldsList.indexOf(R.drawable.background1);
+                rawIndex++;
+                if (rawIndex >= fieldsList.size())
+                    rawIndex = 0;
+                int currentId = fieldsList.get(rawIndex);
+                currentBackground = res.getResourceEntryName(currentId);
+                ApplicationEx.dbHelper.setCurrBackground(currentBackground);
+                if (currentId != resourceId) {
+                    try {
+                        tempDrawable = res.getDrawable(currentId);
+                        /*
+                        if (backgroundDrawable != null &&
+                        		backgroundDrawable instanceof
+                        			TransitionDrawable) {
+                        	((BitmapDrawable)(
+                        			((TransitionDrawable)backgroundDrawable)
+                        			.getDrawable(0))).getBitmap().recycle();
+                        }
+                        if (transitionDrawable != null) {
+                        	((BitmapDrawable)(transitionDrawable.getDrawable(0)))
+		            				.getBitmap().recycle();
+                        }
+                        */
+                        backgroundDrawable = background.getDrawable();
+                        /*
+                        if (oldBitmapDrawable != null)
+                        	oldBitmapDrawable.getBitmap().recycle();
+                    	*/
+                        if (backgroundDrawable != null &&
+                        		backgroundDrawable instanceof
+                        			TransitionDrawable) {
+                            transitionDrawable = (TransitionDrawable) backgroundDrawable;
+                            oldBitmapDrawable = (BitmapDrawable)(
+                                    transitionDrawable.getDrawable(1));
+                            /*
+                            ((BitmapDrawable)(transitionDrawable.getDrawable(0)))
+                    				.getBitmap().recycle();
+            				*/
+                        }
+                        else if (backgroundDrawable != null &&
+                        		backgroundDrawable instanceof BitmapDrawable)
+                            oldBitmapDrawable = (BitmapDrawable) backgroundDrawable;
+                        if (backgroundDrawable != null) {
+                            arrayDrawable[0] = oldBitmapDrawable;
+                            arrayDrawable[1] = tempDrawable;
+                        }
+                    } catch (OutOfMemoryError memErr) {
+                    	setBackground(currentBackground, showNew);
+                    } catch (Resources.NotFoundException e) {
+                        setBackground(currentBackground, showNew);
+                    }
+                }
+                else
+                    setBackground(currentBackground, showNew);
+            }
+            ApplicationEx.dbHelper.setCurrBackground(currentBackground);
+            return null;
+        }
+        
+        @Override
+        protected void onCancelled(Void nothing) {
+        }
+        
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (showNew) {
+                if (backgroundDrawable != null) {
+                    transitionDrawable = new TransitionDrawable(arrayDrawable);
+                    transitionDrawable.setCrossFadeEnabled(true);
+                    background.setImageDrawable(transitionDrawable);
+                    transitionDrawable.startTransition(500);
+                }
+                else
+                    background.setImageDrawable(tempDrawable);
+            }
+            else {
+                if (fieldsList.indexOf(resourceId) >= 0)
+                    background.setImageResource(resourceId);
+                else
+                    background.setImageResource(R.drawable.background1);
+            }
         }
     }
 

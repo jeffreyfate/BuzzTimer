@@ -4,8 +4,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
@@ -36,12 +38,26 @@ public class TimerService extends Service {
     
     private UiCallback uiCallback;
     
+    public class CancelReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Constants.ACTION_STOP_TIMER)) {
+				stopTimer();
+				if (uiCallback != null)
+					uiCallback.updateTime(ApplicationEx.getMsecs(), false);
+			}
+		}
+    }
+    
+    private CancelReceiver cancelReceiver;
+    
     @Override
     public void onCreate() {
         super.onCreate();
         res = ApplicationEx.getApp().getResources();
         nManager = (NotificationManager) getSystemService(
         		Context.NOTIFICATION_SERVICE);
+        cancelReceiver = new CancelReceiver();
     }
     
     @Override
@@ -53,11 +69,14 @@ public class TimerService extends Service {
             timer.cancel();
         timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
         isRunning = false;
+        registerReceiver(cancelReceiver,
+        		new IntentFilter(Constants.ACTION_STOP_TIMER));
         return Service.START_STICKY_COMPATIBILITY;
     }
     
     @Override
     public void onDestroy() {
+    	unregisterReceiver(cancelReceiver);
         stopForeground(true);
         super.onDestroy();
     }
@@ -85,16 +104,15 @@ public class TimerService extends Service {
         showNotification(true);
     }
     
-    private String text;
+    private String text = "";
     private String ticker;
     
     private void makeText(int milliseconds) {
     	makeTicker(ApplicationEx.getMsecs());
-    	int mins = (int)((milliseconds-(milliseconds%60000))/60000);
-        int secs = (int)((milliseconds%60000)/1000);
-        text = Integer.toString(mins) + ":" + (secs >= 10 ?
-        		Integer.toString(secs) : "0" + secs);
-        text = text + " / " + ticker;
+        if (loop)
+        	text = ticker + " Repeating";
+        else
+        	text = ticker;
     }
     
     private void makeTicker(int milliseconds) {
@@ -115,11 +133,14 @@ public class TimerService extends Service {
         nBuilder = new NotificationCompat.Builder(ApplicationEx.getApp());
         nBuilder.setLargeIcon(BitmapFactory.decodeResource(res,
         		R.drawable.ic_launcher)).
-    		setSmallIcon(R.drawable.ic_launcher).
+    		setSmallIcon(R.drawable.ic_stat_notification).
     		setWhen(System.currentTimeMillis()).
     		setContentTitle(text).
-    		setContentText("Touch to stop or edit").
-    		setContentIntent(pendingIntent);
+    		setContentText("Buzz Timer").
+    		setContentIntent(pendingIntent).
+    		addAction(R.drawable.ic_menu_close_clear_cancel, "Cancel",
+    				PendingIntent.getBroadcast(ApplicationEx.getApp(), 0,
+    						new Intent(Constants.ACTION_STOP_TIMER), 0));
         if (showTicker)
         	nBuilder.setTicker(ticker);
         notification = nBuilder.build();
@@ -153,6 +174,8 @@ public class TimerService extends Service {
         isRunning = false;
     }
     
+    private int lastMillis = 0;
+    
     private class Timer extends CountDownTimer {
         private boolean loop = false;
         
@@ -169,7 +192,6 @@ public class TimerService extends Service {
             if (uiCallback != null)
                 uiCallback.updateTime((int)millisUntilFinished, false);
             makeText((int) millisUntilFinished);
-            showNotification(false);
         }
         
         @Override

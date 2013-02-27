@@ -4,8 +4,8 @@
         <item name="android:textSize">74sp</item>
         <item name="android:paddingTop">0sp</item>
         <item name="android:paddingBottom">0sp</item>
-        <item name="android:textColorHighlight">@android:color/black</item>
         <item name="android:cursorVisible">false</item>
+        <item name="android:focusable">false</item>
     </style>
     
     <style name="WhiteText">
@@ -37,6 +37,16 @@
         <item name="android:textSize">48sp</item>
         <item name="android:layout_alignTop">@id/SecondText</item>
         <item name="android:layout_toRightOf">@id/SecondText</item>
+    </style>
+    
+    <style name="NumberPickerLayout">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_above">@id/DoneButton</item>
     </style>
 
 </resources>
