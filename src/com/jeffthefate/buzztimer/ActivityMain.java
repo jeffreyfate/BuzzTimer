@@ -34,6 +34,13 @@ import android.widget.TextView;
 import com.jeffthefate.buzztimer.TimerService.TimerBinder;
 import com.jeffthefate.buzztimer.TimerService.UiCallback;
 
+/**
+ * The timer UI.  Entire UI lives here - no Fragments implemented at this point.
+ * 
+ * Implements a callback that is used by the service to update the time.
+ * 
+ * @author Jeff Fate
+ */
 public class ActivityMain extends FragmentActivity implements UiCallback {
     
     private TextView minText;
@@ -70,6 +77,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private BitmapDrawable oldBitmapDrawable = null;
     
     private Resources res;
+    
+    private static TimerService mService;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,13 +281,12 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     public void onResume() {
         super.onResume();
         if (mService == null) {
-            Intent timerIntent = new Intent(getApplicationContext(),
+            Intent timerIntent = new Intent(ApplicationEx.getApp(),
                     TimerService.class);
-            getApplicationContext().startService(timerIntent);
+            ApplicationEx.getApp().startService(timerIntent);
         }
-        bindService(new Intent(getApplicationContext(), TimerService.class),
+        bindService(new Intent(ApplicationEx.getApp(), TimerService.class),
                 mConnection, 0);
-        ApplicationEx.setActive();
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
         		Build.SERIAL.equals("XXXXXXXXXXXXXXXX"))
         	setBackground(ApplicationEx.dbHelper.getCurrBackground(), false);
@@ -290,12 +298,13 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
             unbindService(mConnection);
             bound = false;
         }
-        ApplicationEx.setInactive();
         super.onPause();
     }
     
-    private static TimerService mService;
-    
+    /**
+     * Create connection that communicates with the TimerService.  Create the
+     * TimerService object here and set this as the consumer of the callback.
+     */
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -310,6 +319,10 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         }
     };
     
+    /**
+     * (non-Javadoc)
+     * @see com.jeffthefate.buzztimer.TimerService.UiCallback#updateTime(int, boolean)
+     */
     @Override
     public void updateTime(int mSecs, boolean setLocal) {
         int mins = (int)((mSecs-(mSecs%60000))/60000);
@@ -324,11 +337,20 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         msecText.setText(Integer.toString(millis));
     }
     
+    /**
+     * Set the milliseconds for the timer globally in ApplicationEx.  Also
+     * updates the UI with the time.
+     * @param	minutes the new timer minute value
+     * @param	seconds the new timer second value
+     */
     private void setTime(int minutes, int seconds) {
         ApplicationEx.setMsecs((minutes*60000)+(seconds*1000));
         updateTime((minutes*60000)+(seconds*1000), false);
     }
     
+    /**
+     * Format the text in the number picker correctly for time.
+     */
     private class TimerFormatter implements Formatter {
         @Override
         public String format(int value) {
@@ -339,6 +361,11 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         }
     }
     
+    /**
+     * Apply or change the background image.
+     * @param name		background image name to apply
+     * @param showNew	whether or not to apply the transition
+     */
     public void setBackground(String name, boolean showNew) {
         if (Build.VERSION.SDK_INT <
                 Build.VERSION_CODES.HONEYCOMB)
@@ -348,6 +375,13 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
+    /**
+     * Does the background application work.  Grabs the previous image and
+     * swaps out the image in the
+     * {@link android.graphics.drawable.TransitionDrawable} if applicable.
+     * Don't want to simply swap if you have enough images - must recycle
+     * bitmaps first.
+     */
     private class SetBackgroundTask extends AsyncTask<Void, Void, Void> {
         private String name;
         private boolean showNew;

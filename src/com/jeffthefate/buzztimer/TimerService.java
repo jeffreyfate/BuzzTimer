@@ -1,7 +1,6 @@
 package com.jeffthefate.buzztimer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -17,10 +16,10 @@ import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 
 /**
- * Service that runs in the background.  Registers receivers for actions that
- * the app will respond to.  Also, handles starting the widget updates.
+ * Service that runs in the background.  Runs the timer and updates the UI as
+ * the timer progresses.
  * 
- * @author Jeff
+ * @author Jeff Fate
  */
 public class TimerService extends Service {
     
@@ -30,14 +29,38 @@ public class TimerService extends Service {
     private Notification notification;
     private NotificationCompat.Builder nBuilder;
     private Resources res;
-    private NotificationManager nManager;
     
+    private String title = "";
+    private String ticker;
+    
+    private UiCallback uiCallback;
+    private CancelReceiver cancelReceiver;
+    
+    private final IBinder mBinder = new TimerBinder();
+    
+    /**
+     * Callback to allow the service to update the UI, which is on a different
+     * thread.
+     * 
+     * @author Jeff Fate
+     *
+     */
     public interface UiCallback {
+    	/**
+    	 * Apply the timer time to the UI.
+    	 * 
+    	 * @param mSecs		timer time in milliseconds
+    	 * @param setLocal	if true, update the UI's values for the timer time
+    	 */
         public void updateTime(int mSecs, boolean setLocal);
     }
     
-    private UiCallback uiCallback;
-    
+    /**
+     * Receives broadcasts to cancel the timer - from the notification.
+     * 
+     * @author Jeff Fate
+     *
+     */
     public class CancelReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -49,14 +72,10 @@ public class TimerService extends Service {
 		}
     }
     
-    private CancelReceiver cancelReceiver;
-    
     @Override
     public void onCreate() {
         super.onCreate();
         res = ApplicationEx.getApp().getResources();
-        nManager = (NotificationManager) getSystemService(
-        		Context.NOTIFICATION_SERVICE);
         cancelReceiver = new CancelReceiver();
     }
     
@@ -86,10 +105,20 @@ public class TimerService extends Service {
         return mBinder;
     }
     
+    /**
+     * Set the current callback that receives UI updates.
+     * 
+     * @param uiCallback	object that has implemented
+     * 						{@link com.jeffthefate.buzztimer.TimerService.UICallback}
+     */
     public void setUiCallback(UiCallback uiCallback) {
         this.uiCallback = uiCallback;
     }
     
+    /**
+     * Start the timer with the current set time value.  This shows the
+     * notification and starts updating the UI while the timer counts down.
+     */
     public void startTimer() {
         isRunning = true;
         if (timer != null) {
@@ -100,21 +129,27 @@ public class TimerService extends Service {
             timer = new Timer(ApplicationEx.getMsecs(), 100, loop);
             timer.start();
         }
-        makeText(ApplicationEx.getMsecs());
+        makeText();
         showNotification(true);
     }
     
-    private String text = "";
-    private String ticker;
-    
-    private void makeText(int milliseconds) {
+    /**
+     * Create the string for the notification title.  Uses the ticker value
+     * and adds "Repeating" if the timer is repeating.
+     */
+    private void makeText() {
     	makeTicker(ApplicationEx.getMsecs());
         if (loop)
-        	text = ticker + " Repeating";
+        	title = ticker + " Repeating";
         else
-        	text = ticker;
+        	title = ticker;
     }
     
+    /**
+     * Create the ticker value that show the timer time.
+     * 
+     * @param milliseconds	time to display in milliseconds
+     */
     private void makeTicker(int milliseconds) {
     	int mins = (int)((milliseconds-(milliseconds%60000))/60000);
         int secs = (int)((milliseconds%60000)/1000);
@@ -122,6 +157,11 @@ public class TimerService extends Service {
         		Integer.toString(secs) : "0" + secs);
     }
     
+    /**
+     * Create and start the ongoing notification while the timer is working.
+     * 
+     * @param showTicker	if true, show the ticker text
+     */
     private void showNotification(boolean showTicker) {
         Intent notificationIntent = new Intent(ApplicationEx.getApp(),
         		ActivityMain.class);
@@ -135,7 +175,7 @@ public class TimerService extends Service {
         		R.drawable.ic_launcher)).
     		setSmallIcon(R.drawable.ic_stat_notification).
     		setWhen(System.currentTimeMillis()).
-    		setContentTitle(text).
+    		setContentTitle(title).
     		setContentText("Buzz Timer").
     		setContentIntent(pendingIntent).
     		addAction(R.drawable.ic_notification_cancel, "Cancel",
@@ -147,6 +187,9 @@ public class TimerService extends Service {
         startForeground(Constants.NOTIFICATION_RUNNING, notification);
     }
     
+    /**
+     * Stop count down of the timer and remove the notification.
+     */
     public void stopTimer() {
         if (timer != null)
             timer.cancel();
@@ -154,18 +197,27 @@ public class TimerService extends Service {
         stopForeground(true);
     }
     
+    /**
+     * @return if the timer is currently running
+     */
     public boolean isTimerRunning() {
         return isRunning;
     }
     
-    private final IBinder mBinder = new TimerBinder();
-    
+    /**
+     * The binder to return to any clients that connect to this service.
+     */
     public class TimerBinder extends Binder {
         public TimerService getService() {
             return TimerService.this;
         }
     }
     
+    /**
+     * Set the current time for the timer and whether it should repeat.
+     * 
+     * @param loop	if true, repeat the timer indefinitely
+     */
     public void setTime(boolean loop) {
         this.loop = loop;
         if (timer != null)
@@ -174,8 +226,11 @@ public class TimerService extends Service {
         isRunning = false;
     }
     
-    private int lastMillis = 0;
-    
+    /**
+     * Custom timer that updates the time in the UI and vibrates when done.
+     * Will start again if the timer is set to repeat indefinitely.  Shows
+     * notification when it starts and dismisses it when it ends.
+     */
     private class Timer extends CountDownTimer {
         private boolean loop = false;
         
@@ -191,7 +246,7 @@ public class TimerService extends Service {
         public void onTick(long millisUntilFinished) {
             if (uiCallback != null)
                 uiCallback.updateTime((int)millisUntilFinished, false);
-            makeText((int) millisUntilFinished);
+            makeText();
         }
         
         @Override

@@ -36,14 +36,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Create the helper object that creates and manages the database.
      * 
-     * @param context
-     *            the context used to create this object
+     * @param context	the context used to create this object
      */
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, 1);
         db = getWritableDatabase();
     }
-    
+    /**
+     * Global instance of this DatabaseHelper.
+     */
     private static DatabaseHelper instance;
     
     public static synchronized DatabaseHelper getInstance() {
@@ -71,12 +72,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Look for an item in a specific table.
      * 
-     * @param name
-     *            identifier for the item to lookup
-     * @param table
-     *            the table to look in
-     * @param column
-     *            the column to look under
+     * @param name		identifier for the item to lookup
+     * @param table		the table to look in
+     * @param column	the column to look under
      * @return if the item is found
      */
     public boolean inDb(String[] values, String table, 
@@ -100,12 +98,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Insert a new record into a table in the database.
      * 
-     * @param cv
-     *            list of content values to be entered
-     * @param tableName
-     *            the table name to be inserted into
-     * @param columnName
-     *            the column that isn't null if the rest are null
+     * @param cv			list of content values to be entered
+     * @param tableName		the table name to be inserted into
+     * @param columnName	the column that isn't null if the rest are null
      * @return the row id of the inserted row
      */
     public long insertRecord(ContentValues cv, String tableName,
@@ -116,12 +111,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Update a record in a table in the database.
      * 
-     * @param cv
-     *            list of content values to be entered
-     * @param tableName
-     *            the table name to be inserted into
-     * @param whereClause
-     *            what to look for
+     * @param cv			list of content values to be entered
+     * @param tableName		the table name to be inserted into
+     * @param whereClause	what to look for
      * @return the number of rows affected
      */
     public long updateRecord(ContentValues cv, String tableName,
@@ -133,9 +125,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
     
-    private boolean recordExists() {
-        Cursor cur = db.query(TIMER_TABLE, new String[] {COL_MSEC}, null, null,
-                null, null, null);
+    /**
+     * Check if a record exists.
+     * 
+     * @param columnName	column to return so not all columns are returned
+     * @return if the record exists
+     */
+    private boolean recordExists(String columnName) {
+        Cursor cur = db.query(TIMER_TABLE, new String[] {columnName}, null,
+        		null, null, null, null);
         boolean exists = false;
         if (cur.getCount() > 0)
             exists = true;
@@ -143,15 +141,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return exists;
     }
     
+    /**
+     * Set the current timer time value.
+     * 
+     * @param mSec	new time value in milliseconds
+     */
     public void setTime(long mSec) {
         ContentValues cv = new ContentValues();
         cv.put(COL_MSEC, mSec);
-        if (recordExists())
+        if (recordExists(COL_MSEC))
             updateRecord(cv, TIMER_TABLE, null, null);
         else
             insertRecord(cv, TIMER_TABLE, COL_MSEC);
     }
     
+    /**
+     * Get the current timer time value.
+     * 
+     * @return current time in milliseconds
+     */
     public int getTime() {
         Cursor cur = db.query(TIMER_TABLE, new String[] {COL_MSEC}, null, null,
                 null, null, null);
@@ -163,6 +171,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return time;
     }
     
+    /**
+     * Set the current background name.
+     * 
+     * @param currBackground	name of the background that is displayed
+     * @return result of the update action
+     */
     public long setCurrBackground(String currBackground) {
     	if (currBackground == null)
     		return -1;
@@ -173,6 +187,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return returnValue;
     }
     
+    /**
+     * Get the current background name.
+     * 
+     * @return the name of the background resource
+     */
     public String getCurrBackground() {
         Cursor cur = db.query(TIMER_TABLE, new String[] {COL_BACKGROUND},
                 null, new String[] {}, null, null, null);
@@ -183,6 +202,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return background;
     }
     
+    /**
+     * Check to make sure all the columns exist.  This is to be used when the
+     * application is created to update the database if necessary.
+     */
     public void checkUpgrade() {
         Cursor cur = db.query(TIMER_TABLE, null, null, null, null, null, null);
         String[] colArray = cur.getColumnNames();
