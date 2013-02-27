@@ -2,6 +2,13 @@
 <lint>
     <issue id="NewApi">
         <ignore path="src\com\jeffthefate\buzztimer\ActivityMain.java" />
+        <ignore path="src\com\jeffthefate\buzztimer\ActivityMain.java" />
+        <ignore path="src\com\jeffthefate\buzztimer\ActivityMain.java" />
+        <ignore path="src\com\jeffthefate\buzztimer\ActivityMain.java" />
         <ignore path="src\com\jeffthefate\buzztimer\VersionedNotificationBuilder.java" />
+    </issue>
+    <issue id="UnusedResources">
+        <ignore path="res\drawable-land\background2.jpg" />
+        <ignore path="res\drawable-land\background3.jpg" />
     </issue>
 </lint>

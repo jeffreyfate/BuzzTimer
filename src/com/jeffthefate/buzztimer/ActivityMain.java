@@ -397,7 +397,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                         if (backgroundDrawable != null &&
                         		backgroundDrawable instanceof
                         			TransitionDrawable) {
-                            transitionDrawable = (TransitionDrawable) backgroundDrawable;
+                            transitionDrawable =
+                            		(TransitionDrawable) backgroundDrawable;
                             oldBitmapDrawable = (BitmapDrawable)(
                                     transitionDrawable.getDrawable(1));
                             /*
@@ -407,7 +408,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                         }
                         else if (backgroundDrawable != null &&
                         		backgroundDrawable instanceof BitmapDrawable)
-                            oldBitmapDrawable = (BitmapDrawable) backgroundDrawable;
+                            oldBitmapDrawable = 
+                            		(BitmapDrawable) backgroundDrawable;
                         if (backgroundDrawable != null) {
                             arrayDrawable[0] = oldBitmapDrawable;
                             arrayDrawable[1] = tempDrawable;

@@ -138,7 +138,7 @@ public class TimerService extends Service {
     		setContentTitle(text).
     		setContentText("Buzz Timer").
     		setContentIntent(pendingIntent).
-    		addAction(R.drawable.ic_menu_close_clear_cancel, "Cancel",
+    		addAction(R.drawable.ic_notification_cancel, "Cancel",
     				PendingIntent.getBroadcast(ApplicationEx.getApp(), 0,
     						new Intent(Constants.ACTION_STOP_TIMER), 0));
         if (showTicker)

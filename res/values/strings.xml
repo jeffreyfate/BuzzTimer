@@ -5,7 +5,6 @@
     <string name="menu_settings">Settings</string>
     
     <string name="loop_key">loop</string>
-    <string name="msec_key">msec</string>
     
     <string name="Repeat">REPEAT FOREVER</string>
     <string name="Done">SET</string>
