@@ -213,7 +213,10 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     doneButton.setVisibility(View.INVISIBLE);
                     colonText.setVisibility(View.VISIBLE);
                 }
-                setBackground(ApplicationEx.dbHelper.getCurrBackground(), true);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
+                		Build.SERIAL.equals("XXXXXXXXXXXXXXXX"))
+                	setBackground(ApplicationEx.dbHelper.getCurrBackground(),
+                			true);
             }
         });
         doneButton.setTypeface(font);
@@ -276,8 +279,9 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         bindService(new Intent(getApplicationContext(), TimerService.class),
                 mConnection, 0);
         ApplicationEx.setActive();
-        setBackground(ApplicationEx.dbHelper.getCurrBackground(),
-                false);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
+        		Build.SERIAL.equals("XXXXXXXXXXXXXXXX"))
+        	setBackground(ApplicationEx.dbHelper.getCurrBackground(), false);
     }
     
     @Override
@@ -427,6 +431,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         
         @Override
         protected void onPostExecute(Void nothing) {
+        	background.setVisibility(View.VISIBLE);
             if (showNew) {
                 if (backgroundDrawable != null) {
                     transitionDrawable = new TransitionDrawable(arrayDrawable);
