@@ -10,33 +10,32 @@
         android:layout_centerInParent="true" >
 	    <TextView
 	        android:id="@+id/MinuteText"
-	        style="@style/MinutePortraitWhiteText"
-	        android:text="00" />
+	        style="@style/MinuteWhiteText"
+	        android:text="@string/MinuteText" />
 	    <TextView
 	        android:id="@+id/ColonText"
-	        style="@style/ColonPortraitWhiteText"
+	        style="@style/ColonWhiteText"
 	        android:text="@string/Delimiter" />
 	    <TextView
 	        android:id="@+id/SecondText"
-	        style="@style/SecondPortraitWhiteText"
-	        android:text="00" />
+	        style="@style/SecondWhiteText"
+	        android:text="@string/SecondText" />
 	    <TextView
-		    android:id="@+id/MillisecondText"
-		    style="@style/TenthPortraitWhiteText"
-		    android:text="0" />
-	</RelativeLayout>
-    <Button
-        android:id="@+id/DoneButton"
-        style="@style/DoneButton" />
+	        android:id="@+id/MillisecondText"
+	        style="@style/TenthWhiteText"
+	        android:text="@string/TenthText" />
+    </RelativeLayout>
     <CheckedTextView
         android:id="@+id/LoopCheck"
         style="@style/LoopCheck" />
+    <Button
+        android:id="@+id/DoneButton"
+        style="@style/DoneButton" />
     <LinearLayout
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_above="@id/DoneButton"
         android:gravity="center"
         android:orientation="horizontal" >
         <net.simonvt.widget.NumberPicker

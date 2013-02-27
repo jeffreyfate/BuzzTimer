@@ -7,64 +7,6 @@
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
     
-    <style name="WhiteText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:gravity">center</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:layout_centerVertical">true</item>
-    </style>
-    
-    <style name="PortraitWhiteText" parent="WhiteText">
-        <item name="android:textSize">120sp</item>
-    </style>
-    
-    <style name="MinutePortraitWhiteText" parent="PortraitWhiteText">
-        <item name="android:layout_alignParentLeft">true</item>
-    </style>
-    
-    <style name="ColonPortraitWhiteText" parent="PortraitWhiteText">
-        <item name="android:layout_width">24dip</item>
-        <item name="android:paddingBottom">16dip</item>
-        <item name="android:layout_toRightOf">@id/MinuteText</item>
-    </style>
-    
-    <style name="SecondPortraitWhiteText" parent="PortraitWhiteText">
-        <item name="android:layout_toRightOf">@id/ColonText</item>
-    </style>
-    
-    <style name="TenthPortraitWhiteText" parent="PortraitWhiteText">
-        <item name="android:textSize">48sp</item>
-        <item name="android:layout_alignTop">@id/SecondText</item>
-        <item name="android:layout_toRightOf">@id/SecondText</item>
-    </style>
-    
-    <style name="LandscapeWhiteText" parent="WhiteText">
-        <item name="android:textSize">200sp</item>
-    </style>
-    
-    <style name="MinuteLandscapeWhiteText" parent="LandscapeWhiteText">
-        <item name="android:layout_alignParentLeft">true</item>
-    </style>
-    
-    <style name="ColonLandscapeWhiteText" parent="LandscapeWhiteText">
-        <item name="android:layout_width">40dip</item>
-        <item name="android:paddingBottom">28dip</item>
-        <item name="android:layout_toRightOf">@id/MinuteText</item>
-    </style>
-    
-    <style name="SecondLandscapeWhiteText" parent="LandscapeWhiteText">
-        <item name="android:layout_toRightOf">@id/ColonText</item>
-    </style>
-    
-    <style name="TenthLandscapeWhiteText" parent="LandscapeWhiteText">
-        <item name="android:textSize">80sp</item>
-        <item name="android:layout_alignTop">@id/SecondText</item>
-        <item name="android:layout_toRightOf">@id/SecondText</item>
-    </style>
-    
     <style name="LoopCheck">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
