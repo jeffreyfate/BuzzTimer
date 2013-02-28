@@ -1,5 +1,7 @@
 package com.jeffthefate.buzztimer;
 
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
@@ -19,6 +21,7 @@ public class ApplicationEx extends Application {
     public static DatabaseHelper dbHelper;
     private static int mSecs = -1;
     public static Toast mToast;
+    public static ArrayList<String> devices = new ArrayList<String>();
     
     @Override
     public void onCreate() {
@@ -29,6 +32,9 @@ public class ApplicationEx extends Application {
         dbHelper.checkUpgrade();
         mSecs = ApplicationEx.dbHelper.getTime() < 0 ? 60000 :
         		ApplicationEx.dbHelper.getTime();
+        devices.add("HT0ATHJ09671");
+        devices.add("0146914813011017");
+        devices.add("015d172c9a440412");
     }
     /**
      * Used by other classes to get the application's global context.

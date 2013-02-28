@@ -27,7 +27,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.CheckedTextView;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -54,8 +53,6 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private CheckedTextView loopCheck;
     private Button doneButton;
     
-    private ImageView background;
-    
     private SharedPreferences sharedPrefs;
     
     private boolean bound;
@@ -79,7 +76,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
     private Resources res;
     
     private static TimerService mService;
-
+    
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +94,6 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 } catch (IllegalAccessException e1) {e1.printStackTrace();}
             }
         }
-        background = (ImageView) findViewById(R.id.Background);
         minText = (TextView) findViewById(R.id.MinuteText);  
         minText.setTypeface(font);
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
@@ -175,6 +171,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     msecText.setVisibility(View.INVISIBLE);
                     newMin = minPicker.getValue();
                     newSec = secPicker.getValue();
+                    timeLayout.setClickable(false);
                 }
                 return true;
             }
@@ -221,11 +218,12 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                     loopCheck.setVisibility(View.INVISIBLE);
                     doneButton.setVisibility(View.INVISIBLE);
                     colonText.setVisibility(View.VISIBLE);
+                    timeLayout.setClickable(true);
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
+                    		ApplicationEx.devices.contains(Build.SERIAL))
+                    	setBackground(ApplicationEx.dbHelper.getCurrBackground(),
+                    			true);
                 }
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
-                		Build.SERIAL.equals("XXXXXXXXXXXXXXXX"))
-                	setBackground(ApplicationEx.dbHelper.getCurrBackground(),
-                			true);
             }
         });
         doneButton.setTypeface(font);
@@ -288,7 +286,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         bindService(new Intent(ApplicationEx.getApp(), TimerService.class),
                 mConnection, 0);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO &&
-        		Build.SERIAL.equals("XXXXXXXXXXXXXXXX"))
+        		ApplicationEx.devices.contains(Build.SERIAL))
         	setBackground(ApplicationEx.dbHelper.getCurrBackground(), false);
     }
     
@@ -423,7 +421,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
 		            				.getBitmap().recycle();
                         }
                         */
-                        backgroundDrawable = background.getDrawable();
+                        backgroundDrawable = timeLayout.getBackground();
                         /*
                         if (oldBitmapDrawable != null)
                         	oldBitmapDrawable.getBitmap().recycle();
@@ -457,6 +455,8 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 else
                     setBackground(currentBackground, showNew);
             }
+            else
+            	currentBackground = res.getResourceEntryName(resourceId);
             ApplicationEx.dbHelper.setCurrBackground(currentBackground);
             return null;
         }
@@ -465,24 +465,26 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         protected void onCancelled(Void nothing) {
         }
         
-        @Override
+        @SuppressWarnings("deprecation")
+		@Override
         protected void onPostExecute(Void nothing) {
-        	background.setVisibility(View.VISIBLE);
             if (showNew) {
                 if (backgroundDrawable != null) {
                     transitionDrawable = new TransitionDrawable(arrayDrawable);
                     transitionDrawable.setCrossFadeEnabled(true);
-                    background.setImageDrawable(transitionDrawable);
+                    timeLayout.setBackgroundDrawable(transitionDrawable);
                     transitionDrawable.startTransition(500);
                 }
                 else
-                    background.setImageDrawable(tempDrawable);
+                	timeLayout.setBackgroundDrawable(tempDrawable);
             }
             else {
                 if (fieldsList.indexOf(resourceId) >= 0)
-                    background.setImageResource(resourceId);
+                	timeLayout.setBackgroundDrawable(
+                			res.getDrawable(resourceId));
                 else
-                    background.setImageResource(R.drawable.background1);
+                	timeLayout.setBackgroundDrawable(
+                			res.getDrawable(R.drawable.background1));
             }
         }
     }
