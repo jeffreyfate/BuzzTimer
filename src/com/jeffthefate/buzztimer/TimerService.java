@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -139,10 +140,9 @@ public class TimerService extends Service {
      */
     private void makeText() {
     	makeTicker(ApplicationEx.getMsecs());
+    	title = "Buzz Timer | " + ticker;
         if (loop)
-        	title = ticker + " Repeating";
-        else
-        	title = ticker;
+        	title = title + " Repeating";
     }
     
     /**
@@ -175,9 +175,12 @@ public class TimerService extends Service {
         		R.drawable.ic_launcher)).
     		setSmallIcon(R.drawable.ic_stat_notification).
     		setWhen(System.currentTimeMillis()).
-    		setContentTitle(title).
-    		setContentText("Buzz Timer").
-    		setContentIntent(pendingIntent).
+    		setContentTitle(title);
+    		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+    			nBuilder.setContentText("Touch to cancel or edit");
+    		else
+    			nBuilder.setContentText("Touch to edit");
+    		nBuilder.setContentIntent(pendingIntent).
     		addAction(R.drawable.ic_notification_cancel, "Cancel",
     				PendingIntent.getBroadcast(ApplicationEx.getApp(), 0,
     						new Intent(Constants.ACTION_STOP_TIMER), 0));

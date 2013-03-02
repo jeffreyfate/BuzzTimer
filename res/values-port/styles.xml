@@ -48,5 +48,24 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:layout_above">@id/DoneButton</item>
     </style>
+    
+    <style name="DoneButton">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:paddingLeft">40dip</item>
+        <item name="android:paddingRight">40dip</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_toRightOf">@id/LoopCheck</item>
+        <item name="android:layout_marginBottom">8dip</item>
+        <item name="android:layout_marginRight">8dip</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:layout_marginTop">8dip</item>
+        <item name="android:text">@string/Done</item>
+    </style>
 
 </resources>

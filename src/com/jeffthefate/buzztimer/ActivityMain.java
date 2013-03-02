@@ -27,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ import com.jeffthefate.buzztimer.TimerService.UiCallback;
  */
 public class ActivityMain extends FragmentActivity implements UiCallback {
     
+	private ImageView background;
     private TextView minText;
     private NumberPicker minPicker;
     private TextView secText;
@@ -94,6 +96,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 } catch (IllegalAccessException e1) {e1.printStackTrace();}
             }
         }
+        background = (ImageView) findViewById(R.id.Background);
         minText = (TextView) findViewById(R.id.MinuteText);  
         minText.setTypeface(font);
         minPicker = (NumberPicker) findViewById(R.id.MinutePicker);
@@ -421,7 +424,7 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
 		            				.getBitmap().recycle();
                         }
                         */
-                        backgroundDrawable = timeLayout.getBackground();
+                        backgroundDrawable = background.getDrawable();
                         /*
                         if (oldBitmapDrawable != null)
                         	oldBitmapDrawable.getBitmap().recycle();
@@ -472,19 +475,17 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
                 if (backgroundDrawable != null) {
                     transitionDrawable = new TransitionDrawable(arrayDrawable);
                     transitionDrawable.setCrossFadeEnabled(true);
-                    timeLayout.setBackgroundDrawable(transitionDrawable);
+                    background.setImageDrawable(transitionDrawable);
                     transitionDrawable.startTransition(500);
                 }
                 else
-                	timeLayout.setBackgroundDrawable(tempDrawable);
+                	background.setImageDrawable(tempDrawable);
             }
             else {
                 if (fieldsList.indexOf(resourceId) >= 0)
-                	timeLayout.setBackgroundDrawable(
-                			res.getDrawable(resourceId));
+                	background.setImageResource(resourceId);
                 else
-                	timeLayout.setBackgroundDrawable(
-                			res.getDrawable(R.drawable.background1));
+                	background.setImageResource(R.drawable.background1);
             }
         }
     }

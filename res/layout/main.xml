@@ -9,6 +9,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:contentDescription="@string/backgroundImage" />
+    <ImageView
+        android:id="@+id/BackgroundCover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="#B0000000"
         android:contentDescription="@string/backgroundImage" />
     <RelativeLayout
