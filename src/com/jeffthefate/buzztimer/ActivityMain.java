@@ -3,9 +3,10 @@ package com.jeffthefate.buzztimer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import net.simonvt.widget.NumberPicker;
-import net.simonvt.widget.NumberPicker.Formatter;
-import net.simonvt.widget.NumberPicker.OnValueChangeListener;
+import net.simonvt.numberpicker.NumberPicker;
+import net.simonvt.numberpicker.NumberPicker.Formatter;
+import net.simonvt.numberpicker.NumberPicker.OnValueChangeListener;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -468,7 +469,6 @@ public class ActivityMain extends FragmentActivity implements UiCallback {
         protected void onCancelled(Void nothing) {
         }
         
-        @SuppressWarnings("deprecation")
 		@Override
         protected void onPostExecute(Void nothing) {
             if (showNew) {

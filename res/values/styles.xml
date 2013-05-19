@@ -1,9 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
     <style name="DarkTheme" parent="android:Theme.Black.NoTitleBar">
-        <item name="numberPickerUpButtonStyle">@style/NPWidget.Holo.ImageButton.NumberPickerUpButton</item>
-        <item name="numberPickerDownButtonStyle">@style/NPWidget.Holo.ImageButton.NumberPickerDownButton</item>
-        <item name="numberPickerInputTextStyle">@style/EditText</item>
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
     

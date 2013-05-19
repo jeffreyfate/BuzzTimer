@@ -1,6 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
-    <style name="EditText" parent="NPWidget.Holo.EditText.NumberPickerInputText">
+    <style name="EditText">
         <item name="android:textSize">80sp</item>
         <item name="android:paddingTop">0sp</item>
         <item name="android:paddingBottom">0sp</item>

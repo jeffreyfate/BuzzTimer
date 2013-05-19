@@ -45,12 +45,12 @@
         style="@style/DoneButton" />
     <LinearLayout
         style="@style/NumberPickerLayout" >
-        <net.simonvt.widget.NumberPicker
+        <net.simonvt.numberpicker.NumberPicker
             android:id="@+id/MinutePicker"
             android:layout_width="120dip"
             android:layout_height="match_parent"
             android:visibility="gone" />
-        <net.simonvt.widget.NumberPicker
+        <net.simonvt.numberpicker.NumberPicker
             android:id="@+id/SecondPicker"
             android:layout_width="120dip"
             android:layout_height="match_parent"
